@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
@@ -48,7 +48,7 @@ defineOptions(
   }
 )
 
-function validateEmail(val) {
+function validateEmail(val: string) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (emailRegex.test(val)) {
     return true

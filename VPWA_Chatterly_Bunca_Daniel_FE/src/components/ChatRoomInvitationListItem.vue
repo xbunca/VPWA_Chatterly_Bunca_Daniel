@@ -1,11 +1,16 @@
-<script setup>
+<script setup lang="ts">
 
-const props = defineProps({
-  isPrivate: {
-    type: Boolean,
-    required: true
-  }
-})
+import { ChatRoom } from 'components/ChatRoomListItem.vue';
+
+export interface ChatRoomInvitation extends ChatRoom {
+
+}
+
+withDefaults(defineProps<ChatRoomInvitation>(), {
+
+});
+
+const emits = defineEmits(['acceptClicked', 'rejectClicked']);
 
 </script>
 
@@ -36,6 +41,7 @@ const props = defineProps({
       text-color="white"
       color="green"
       size="md"
+      @click="emits('acceptClicked')"
       dense
     />
 
@@ -45,6 +51,7 @@ const props = defineProps({
       text-color="white"
       color="red"
       size="md"
+      @click="emits('rejectClicked')"
       dense
     />
   </div>

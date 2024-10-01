@@ -1,6 +1,6 @@
 # Chatterly (vpwa-chatterly-bunca-daniel-fe)
 
-Web chat app
+Chetting web app
 
 ## Install the dependencies
 ```bash

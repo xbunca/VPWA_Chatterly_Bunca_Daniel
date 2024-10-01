@@ -1,11 +1,17 @@
-<script setup>
+<script setup lang="ts">
 
-const props = defineProps({
-  isPrivate: {
-    type: Boolean,
-    required: true
-  }
-})
+export interface ChatRoom {
+  isPrivate?: boolean;
+  isOwner?: boolean;
+}
+
+withDefaults(defineProps<ChatRoom>(), {});
+
+const emits = defineEmits(['deleteClicked'])
+
+const leaveRoomButtonClicked = () => {
+  emits('deleteClicked')
+}
 
 </script>
 
@@ -27,7 +33,7 @@ const props = defineProps({
 
   <div id="chat-info-container">
     <p id="chatNameLabel">ChatName</p>
-    <p id="invitedByLabel">Invite from: <br>@nickname</p>
+    <p v-if="isOwner" id="invitedByLabel">Invite from: <br>@nickname</p>
   </div>
 
   <q-btn
@@ -36,6 +42,7 @@ const props = defineProps({
     text-color="white"
     color="red"
     size="md"
+    @click="leaveRoomButtonClicked"
     dense
   />
 </div>

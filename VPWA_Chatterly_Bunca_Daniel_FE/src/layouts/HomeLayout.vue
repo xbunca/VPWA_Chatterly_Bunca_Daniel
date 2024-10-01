@@ -1,48 +1,86 @@
-<script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import StatusListItem from "components/StatusListItem.vue";
-import ChatRoomInvitationListItem from "components/ChatRoomInvitationListItem.vue";
-import ChatRoomListItem from "components/ChatRoomListItem.vue";
+<script setup lang="ts">
+import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import StatusListItem, { Status } from 'components/StatusListItem.vue';
+import ChatRoomInvitationListItem, {
+  ChatRoomInvitation,
+} from 'components/ChatRoomInvitationListItem.vue';
+import ChatRoomListItem, { ChatRoom } from 'components/ChatRoomListItem.vue';
 
 const router = useRouter();
 
 const notifyMentionsOnly = ref(false);
 
-const statusColor = ref("green")
+const statuses: Status[] = [
+  {
+    color: 'grey',
+    title: 'Offline',
+    onClickEvent: () => {
+      selectedStatus.value = statuses[0];
+    },
+  },
+  {
+    color: 'green',
+    title: 'Online',
+    onClickEvent: () => {
+      selectedStatus.value = statuses[1];
+    },
+  },
+  {
+    color: 'red',
+    title: 'Do not disturb',
+    onClickEvent: () => {
+      selectedStatus.value = statuses[2];
+    },
+  },
+];
 
-const setOffline = () => {
-  statusColor.value = "grey"
-}
-
-const setOnline = () => {
-  statusColor.value = "green"
-}
-
-const setDnd = () => {
-  statusColor.value = "red"
-}
+const selectedStatus = ref<Status>(statuses[1]);
 
 const logOut = () => {
-  router.push({ name: 'login' })
+  router.push({ name: 'login' });
+};
+
+const chatRoomInvitations = ref<ChatRoomInvitation[]>([]);
+
+for (let i = 0; i < 3; i++) {
+  chatRoomInvitations.value.push({
+    isPrivate: Math.random() > 0.5,
+    isOwner: false,
+  });
 }
 
+const chatRooms = ref<ChatRoom[]>([]);
+
+for (let i = 0; i < 15; i++) {
+  chatRooms.value.push({
+    isPrivate: Math.random() > 0.5,
+    isOwner: Math.random() > 0.5,
+  });
+}
+
+const acceptRoomInvitationButtonTapped = (index: number) => {
+  const chatRoomInvitation = chatRoomInvitations.value[index];
+  chatRoomInvitations.value.splice(index, 1);
+  chatRooms.value.push(chatRoomInvitation);
+};
+
+const rejectRoomInvitationButtonTapped = (index: number) => {
+  chatRoomInvitations.value.splice(index, 1);
+};
+
+const leaveRoomButtonTapped = (index: number) => {
+  chatRooms.value.splice(index, 1);
+};
 </script>
 
 <template>
   <div id="top-container">
     <div id="logo-container">
-      <q-img
-        id="logo"
-        src="src/assets/logo.png"
-        fit="scale-down"
-      />
-      <h6>
-        Chatterly
-      </h6>
+      <q-img id="logo" src="src/assets/logo.png" fit="scale-down" />
+      <h6>Chatterly</h6>
     </div>
     <div id="account-container">
-
       <div>
         <q-avatar
           id="accountAvatar"
@@ -54,21 +92,20 @@ const logOut = () => {
         />
         <q-btn-dropdown
           id="statusButton"
-          :color="statusColor"
-          :text-color="statusColor"
+          :color="selectedStatus.color"
+          :text-color="selectedStatus.color"
           size="xs"
           dropdown-icon=""
           round
-          dense>
-
+          dense
+        >
           <q-list>
-
-            <StatusListItem color="grey" title="Offline" :on-click-event="setOffline"/>
-            <StatusListItem  color="green" title="Online" :on-click-event="setOnline"/>
-            <StatusListItem  color="red" title="Do not disturb" :on-click-event="setDnd"/>
-
+            <StatusListItem
+              v-for="status in statuses"
+              :key="status.title"
+              v-bind="status"
+            />
           </q-list>
-
         </q-btn-dropdown>
       </div>
 
@@ -85,48 +122,29 @@ const logOut = () => {
         round
         dense
       >
-
         <q-list>
-
           <q-item v-close-popup>
-            <q-item-section
-              style="align-items: center"
-              avatar>
-              <q-avatar
-                icon="notifications"
-                size="xl"
-              />
+            <q-item-section style="align-items: center" avatar>
+              <q-avatar icon="notifications" size="xl" />
             </q-item-section>
             <q-item-section>
-              <q-item-label>
-                Notify mentions only
-              </q-item-label>
+              <q-item-label> Notify mentions only </q-item-label>
             </q-item-section>
             <q-item-section side>
-              <q-toggle v-model="notifyMentionsOnly"/>
+              <q-toggle v-model="notifyMentionsOnly" />
             </q-item-section>
           </q-item>
 
           <q-item clickable v-close-popup @click="logOut">
-            <q-item-section
-              style="align-items: center"
-              avatar>
-              <q-avatar
-                icon="logout"
-                size="xl"
-              />
+            <q-item-section style="align-items: center" avatar>
+              <q-avatar icon="logout" size="xl" />
             </q-item-section>
             <q-item-section>
-              <q-item-label>
-                Log Out
-              </q-item-label>
+              <q-item-label> Log Out </q-item-label>
             </q-item-section>
           </q-item>
-
         </q-list>
-
       </q-btn-dropdown>
-
     </div>
   </div>
 
@@ -137,35 +155,32 @@ const logOut = () => {
           <q-list class="flex flex-center">
             <p>Chat invitations</p>
 
-            <ChatRoomInvitationListItem :is-private="true"/>
-            <ChatRoomInvitationListItem :is-private="false"/>
-            <ChatRoomInvitationListItem :is-private="false"/>
+            <ChatRoomInvitationListItem
+              v-for="(invitation, index) in chatRoomInvitations"
+              :key="index"
+              v-bind="invitation"
+              @accept-clicked="acceptRoomInvitationButtonTapped(index)"
+              @reject-clicked="rejectRoomInvitationButtonTapped(index)"
+            />
 
             <p>Chats</p>
 
-            <ChatRoomListItem :is-private="true"/>
-            <ChatRoomListItem :is-private="true"/>
-            <ChatRoomListItem :is-private="false"/>
-            <ChatRoomListItem :is-private="true"/>
-            <ChatRoomListItem :is-private="false"/>
-            <ChatRoomListItem :is-private="true"/>
-            <ChatRoomListItem :is-private="false"/>
-            <ChatRoomListItem :is-private="true"/>
-            <ChatRoomListItem :is-private="false"/>
-            <ChatRoomListItem :is-private="false"/>
-            <ChatRoomListItem :is-private="true"/>
-            <ChatRoomListItem :is-private="true"/>
-
+            <ChatRoomListItem
+              v-for="(chatRoom, index) in chatRooms"
+              :key="index"
+              v-bind="chatRoom"
+              @delete-clicked="leaveRoomButtonTapped(index)"
+            />
           </q-list>
         </q-scroll-area>
       </div>
       <div id="create-room-container">
         <q-btn
-        id="createRoomButton"
-        color="green"
-        icon="add"
-        unelevated
-        dense
+          id="createRoomButton"
+          color="green"
+          icon="add"
+          unelevated
+          dense
         />
       </div>
     </div>
@@ -182,21 +197,13 @@ const logOut = () => {
           dense
           :style="{ width: '90%' }"
         />
-        <q-btn
-          id="sendButton"
-          icon="send"
-          size="lg"
-          color="blue"
-          round
-          dense
-        />
+        <q-btn id="sendButton" icon="send" size="lg" color="blue" round dense />
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-
 #top-container {
   display: flex;
   flex-direction: row;
@@ -311,5 +318,4 @@ const logOut = () => {
   align-items: center;
   height: 10%;
 }
-
 </style>

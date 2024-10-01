@@ -72,8 +72,11 @@ module.exports = configure(function (/* ctx */) {
 
       vitePlugins: [
         ['vite-plugin-checker', {
+          vueTsc: {
+            tsconfigPath: 'tsconfig.vue-tsc.json'
+          },
           eslint: {
-            lintCommand: 'eslint "./**/*.{js,mjs,cjs,vue}"'
+            lintCommand: 'eslint "./**/*.{js,ts,mjs,cjs,vue}"'
           }
         }, { server: false }]
       ]
@@ -107,7 +110,7 @@ module.exports = configure(function (/* ctx */) {
     // https://v2.quasar.dev/options/animations
     animations: [],
 
-    // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#property-sourcefiles
+    // https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#sourcefiles
     // sourceFiles: {
     //   rootComponent: 'src/App.vue',
     //   router: 'src/router/index',
@@ -169,7 +172,6 @@ module.exports = configure(function (/* ctx */) {
       // extendElectronMainConf (esbuildConf)
       // extendElectronPreloadConf (esbuildConf)
 
-      // specify the debugging port to use for the Electron app when running in development mode
       inspectPort: 5858,
 
       bundler: 'packager', // 'packager' or 'builder'

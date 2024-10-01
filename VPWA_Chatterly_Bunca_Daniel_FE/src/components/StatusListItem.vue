@@ -1,19 +1,12 @@
-<script setup>
+<script setup lang="ts">
 
-const props = defineProps({
-  color: {
-    type: String,
-    required: true
-  },
-  title: {
-    type: String,
-    required: true
-  },
-  onClickEvent: {
-    type: Function,
-    required: true
-  }
-})
+export interface Status {
+  color?: string;
+  title?: string;
+  onClickEvent?: () => void;
+}
+
+withDefaults(defineProps<Status>(), {});
 
 </script>
 
@@ -30,7 +23,7 @@ const props = defineProps({
     </q-item-section>
     <q-item-section>
       <q-item-label>
-        {{ props.title }}
+        {{ title }}
       </q-item-label>
     </q-item-section>
   </q-item>

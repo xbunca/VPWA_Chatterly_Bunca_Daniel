@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
@@ -90,7 +90,7 @@ defineOptions(
   }
 )
 
-function validateEmail(val) {
+function validateEmail(val: string) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (emailRegex.test(val)) {
     return true
@@ -110,7 +110,7 @@ function validateEmail(val) {
       <q-input
         id="nameField"
         label="Name"
-        type="name"
+        type="text"
         placeholder=""
         v-model="nameField"
         outlined
@@ -121,7 +121,7 @@ function validateEmail(val) {
       <q-input
         id="surnameField"
         label="Surname"
-        type="surname"
+        type="text"
         placeholder=""
         v-model="surnameField"
         outlined
@@ -133,7 +133,7 @@ function validateEmail(val) {
     <q-input
       id="nicknameField"
       label="Nickname"
-      type="nickname"
+      type="text"
       placeholder=""
       v-model="nicknameField"
       outlined
