@@ -1,10 +1,6 @@
 <script setup lang="ts">
 
-export interface Status {
-  color?: string;
-  title?: string;
-  onClickEvent?: () => void;
-}
+import { Status } from 'components/models';
 
 withDefaults(defineProps<Status>(), {});
 

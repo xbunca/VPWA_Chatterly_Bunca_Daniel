@@ -16,3 +16,34 @@ export interface User {
   status: number;
   notifyMentionsOnly: boolean;
 }
+
+export interface Status {
+  color?: string;
+  title?: string;
+  onClickEvent?: () => void;
+}
+
+interface Sender {
+  id: number;
+  name: string;
+  surname: string;
+  status: number;
+}
+
+export interface Message {
+  id: number;
+  content: string;
+  sender: Sender;
+}
+
+export interface ChatRoom {
+  id: number;
+  name: string;
+  isPrivate?: boolean;
+  inviteFrom: string | null;
+  messages: Message[];
+}
+
+export interface ChatRoomInvitation extends ChatRoom {
+
+}

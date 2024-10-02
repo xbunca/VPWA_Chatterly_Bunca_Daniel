@@ -1,10 +1,6 @@
 <script setup lang="ts">
 
-import { ChatRoom } from 'components/ChatRoomListItem.vue';
-
-export interface ChatRoomInvitation extends ChatRoom {
-
-}
+import { ChatRoomInvitation } from 'components/models';
 
 withDefaults(defineProps<ChatRoomInvitation>(), {
 
@@ -18,7 +14,7 @@ const emits = defineEmits(['acceptClicked', 'rejectClicked']);
   <div id="container">
     <div id="image-container">
       <div id="image">
-
+        <p>{{ name[0] }}</p>
       </div>
       <q-avatar
         id="roomTypeAvatar"
@@ -31,8 +27,8 @@ const emits = defineEmits(['acceptClicked', 'rejectClicked']);
     </div>
 
     <div id="chat-info-container">
-      <p id="chatNameLabel">ChatName</p>
-      <p id="invitedByLabel">Invite from: <br>@nickname</p>
+      <p id="chatNameLabel">{{ name }}</p>
+      <p id="invitedByLabel">Invite from: <br>@{{ inviteFrom }}</p>
     </div>
 
     <q-btn
@@ -76,10 +72,19 @@ const emits = defineEmits(['acceptClicked', 'rejectClicked']);
 }
 
 #image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 50px;
   width: 50px;
   border-radius: 20%;
   background-color: #787878;
+}
+
+#image p {
+  color: white;
+  margin-bottom: 0;
+  font-size: 280%;
 }
 
 #roomTypeAvatar {

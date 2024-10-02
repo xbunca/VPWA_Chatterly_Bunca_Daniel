@@ -1,11 +1,14 @@
 <script setup lang="ts">
 
-export interface ChatRoom {
-  isPrivate?: boolean;
-  isOwner?: boolean;
-}
+import { ChatRoom } from 'components/models';
+import { useSelectedChatStore } from 'stores/selectedChatStore';
+import { useRouter } from 'vue-router';
 
-withDefaults(defineProps<ChatRoom>(), {});
+const router = useRouter()
+
+const selectedChatStore = useSelectedChatStore()
+
+const props = withDefaults(defineProps<ChatRoom>(), {});
 
 const emits = defineEmits(['deleteClicked'])
 
@@ -13,13 +16,18 @@ const leaveRoomButtonClicked = () => {
   emits('deleteClicked')
 }
 
+const onCellClicked = () => {
+  selectedChatStore.chatRoom = props
+  router.push({ name: 'chat' })
+}
+
 </script>
 
 <template>
-<div id="container">
+<div id="container" @click="onCellClicked">
   <div id="image-container">
     <div id="image">
-
+      <p>{{ name[0] }}</p>
     </div>
     <q-avatar
       id="roomTypeAvatar"
@@ -32,8 +40,8 @@ const leaveRoomButtonClicked = () => {
   </div>
 
   <div id="chat-info-container">
-    <p id="chatNameLabel">ChatName</p>
-    <p v-if="!isOwner" id="invitedByLabel">Invite from: <br>@nickname</p>
+    <p id="chatNameLabel">{{ name }}</p>
+    <p v-if="inviteFrom != null" id="invitedByLabel">Invite from: <br>@{{ inviteFrom }}</p>
   </div>
 
   <q-btn
@@ -42,7 +50,7 @@ const leaveRoomButtonClicked = () => {
     text-color="white"
     color="red"
     size="md"
-    @click="leaveRoomButtonClicked"
+    @click.stop="leaveRoomButtonClicked"
     dense
   />
 </div>
@@ -58,6 +66,7 @@ const leaveRoomButtonClicked = () => {
   width: 95%;
   height: 8vh;
   background: #d5d4d4;
+  cursor: pointer;
 }
 
 #image-container {
@@ -67,10 +76,19 @@ const leaveRoomButtonClicked = () => {
 }
 
 #image {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   height: 50px;
   width: 50px;
   border-radius: 20%;
   background-color: #787878;
+}
+
+#image p {
+  color: white;
+  margin-bottom: 0;
+  font-size: 280%;
 }
 
 #roomTypeAvatar {

@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import StatusListItem, { Status } from 'components/StatusListItem.vue';
-import ChatRoomInvitationListItem, {
-  ChatRoomInvitation,
-} from 'components/ChatRoomInvitationListItem.vue';
-import ChatRoomListItem, { ChatRoom } from 'components/ChatRoomListItem.vue';
+import StatusListItem from 'components/StatusListItem.vue';
+import ChatRoomInvitationListItem from 'components/ChatRoomInvitationListItem.vue';
+import ChatRoomListItem from 'components/ChatRoomListItem.vue';
 import { useUserStore } from 'stores/userStore';
+import { ChatRoom, ChatRoomInvitation, Status } from 'components/models';
 
 const router = useRouter();
 
@@ -47,10 +46,21 @@ const logOut = () => {
 
 const chatRoomInvitations = ref<ChatRoomInvitation[]>([]);
 
+const adjectives = [
+  'Nebula', 'Star', 'Cosmic', 'Galactic', 'Quantum', 'Astro', 'Pulsar', 'Photon', 'Nova', 'Quasar', 'Celestial', 'Stellar'
+];
+
+const nouns = [
+  'Whisper', 'Dust', 'Voyage', 'Pulse', 'Echo', 'Flare', 'Wave', 'Comms', 'Currents', 'Beam', 'Lounge', 'Chatter'
+];
+
 for (let i = 0; i < 3; i++) {
   chatRoomInvitations.value.push({
+    id: i,
+    name: adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + nouns[Math.floor(Math.random() * nouns.length)],
     isPrivate: Math.random() > 0.5,
-    isOwner: false,
+    inviteFrom: 'nickname',
+    messages: []
   });
 }
 
@@ -58,8 +68,11 @@ const chatRooms = ref<ChatRoom[]>([]);
 
 for (let i = 0; i < 15; i++) {
   chatRooms.value.push({
+    id: i,
+    name: adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + nouns[Math.floor(Math.random() * nouns.length)],
     isPrivate: Math.random() > 0.5,
-    isOwner: Math.random() > 0.5,
+    inviteFrom: Math.random() > 0.5 ? 'nickname' : null,
+    messages: []
   });
 }
 
@@ -158,8 +171,8 @@ const leaveRoomButtonTapped = (index: number) => {
     <div id="chats-container">
       <div id="chats-list-container">
         <q-scroll-area id="chats-list-scroll">
-          <q-list class="flex flex-center">
-            <p>Chat invitations</p>
+          <q-list class="flex flex-center" style="row-gap: 10px">
+            <p style="margin-bottom: 0; margin-top: 10px">Chat invitations</p>
 
             <ChatRoomInvitationListItem
               v-for="(invitation, index) in chatRoomInvitations"
@@ -169,7 +182,7 @@ const leaveRoomButtonTapped = (index: number) => {
               @reject-clicked="rejectRoomInvitationButtonTapped(index)"
             />
 
-            <p>Chats</p>
+            <p style="margin-bottom: 0">Chats</p>
 
             <ChatRoomListItem
               v-for="(chatRoom, index) in chatRooms"
