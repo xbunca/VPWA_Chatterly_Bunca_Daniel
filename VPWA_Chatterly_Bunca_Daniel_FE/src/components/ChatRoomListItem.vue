@@ -33,7 +33,7 @@ const leaveRoomButtonClicked = () => {
 
   <div id="chat-info-container">
     <p id="chatNameLabel">ChatName</p>
-    <p v-if="isOwner" id="invitedByLabel">Invite from: <br>@nickname</p>
+    <p v-if="!isOwner" id="invitedByLabel">Invite from: <br>@nickname</p>
   </div>
 
   <q-btn

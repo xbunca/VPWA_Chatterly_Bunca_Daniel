@@ -6,36 +6,40 @@ import ChatRoomInvitationListItem, {
   ChatRoomInvitation,
 } from 'components/ChatRoomInvitationListItem.vue';
 import ChatRoomListItem, { ChatRoom } from 'components/ChatRoomListItem.vue';
+import { useUserStore } from 'stores/userStore';
 
 const router = useRouter();
 
-const notifyMentionsOnly = ref(false);
+const userStore = useUserStore();
 
 const statuses: Status[] = [
   {
     color: 'grey',
     title: 'Offline',
     onClickEvent: () => {
-      selectedStatus.value = statuses[0];
+      userStore.user.status = 0
+      selectedStatus.value = statuses[0]
     },
   },
   {
     color: 'green',
     title: 'Online',
     onClickEvent: () => {
-      selectedStatus.value = statuses[1];
+      userStore.user.status = 1
+      selectedStatus.value = statuses[1]
     },
   },
   {
     color: 'red',
     title: 'Do not disturb',
     onClickEvent: () => {
-      selectedStatus.value = statuses[2];
+      userStore.user.status = 2
+      selectedStatus.value = statuses[2]
     },
   },
 ];
 
-const selectedStatus = ref<Status>(statuses[1]);
+const selectedStatus = ref<Status>(statuses[userStore.user.status]);
 
 const logOut = () => {
   router.push({ name: 'login' });
@@ -110,8 +114,10 @@ const leaveRoomButtonTapped = (index: number) => {
       </div>
 
       <div id="account-info-container">
-        <p id="nameSurnameLabel">MyName MySurname</p>
-        <p id="nicknameLabel">@MyNickname</p>
+        <p id="nameSurnameLabel">
+          {{ userStore.user.name }} {{ userStore.user.surname }}
+        </p>
+        <p id="nicknameLabel">@{{ userStore.user.nickname }}</p>
       </div>
 
       <q-btn-dropdown
@@ -131,7 +137,7 @@ const leaveRoomButtonTapped = (index: number) => {
               <q-item-label> Notify mentions only </q-item-label>
             </q-item-section>
             <q-item-section side>
-              <q-toggle v-model="notifyMentionsOnly" />
+              <q-toggle v-model="userStore.user.notifyMentionsOnly" />
             </q-item-section>
           </q-item>
 

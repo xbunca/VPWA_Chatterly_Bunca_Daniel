@@ -2,9 +2,12 @@
 import { ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
+import { useUserStore } from 'stores/userStore';
 
 const q = useQuasar()
 const router = useRouter()
+
+const userStore = useUserStore()
 
 const nameField = ref('')
 const surnameField = ref('')
@@ -78,6 +81,16 @@ const createAccountTapped = () => {
       timeout: 500
     })
     return
+  }
+
+  userStore.user = {
+    id: 1,
+    name: name,
+    surname: surname,
+    nickname: nickname,
+    email: email,
+    status: 1,
+    notifyMentionsOnly: false
   }
 
   router.push({ name: 'home' })
