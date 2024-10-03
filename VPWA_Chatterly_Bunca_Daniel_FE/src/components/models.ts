@@ -39,7 +39,7 @@ export interface Message {
 export interface ChatRoom {
   id: number;
   name: string;
-  isPrivate?: boolean;
+  isPrivate: boolean;
   inviteFrom: string | null;
   messages: Message[];
 }

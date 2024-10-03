@@ -6,10 +6,12 @@ import ChatRoomInvitationListItem from 'components/ChatRoomInvitationListItem.vu
 import ChatRoomListItem from 'components/ChatRoomListItem.vue';
 import { useUserStore } from 'stores/userStore';
 import { ChatRoom, ChatRoomInvitation, Status } from 'components/models';
+import { useSelectedChatStore } from 'stores/selectedChatStore';
 
 const router = useRouter();
 
 const userStore = useUserStore();
+const selectedChatStore = useSelectedChatStore()
 
 const statuses: Status[] = [
   {
@@ -89,6 +91,24 @@ const rejectRoomInvitationButtonTapped = (index: number) => {
 const leaveRoomButtonTapped = (index: number) => {
   chatRooms.value.splice(index, 1);
 };
+
+const messageField = ref('')
+
+const onSend = () => {
+  if (selectedChatStore.chatRoom != null) {
+    selectedChatStore.chatRoom?.messages.push({
+      id: 1,
+      content: messageField.value,
+      sender: {
+        id: userStore.user.id,
+        name: userStore.user.name,
+        surname: userStore.user.surname,
+        status: userStore.user.status
+      }
+    });
+    messageField.value = '';
+  }
+}
 </script>
 
 <template>
@@ -101,11 +121,11 @@ const leaveRoomButtonTapped = (index: number) => {
       <div>
         <q-avatar
           id="accountAvatar"
-          color="grey-8"
+          color="grey-4"
           size="6.5vh"
           font-size="80%"
           text-color="white"
-          icon="person"
+          :icon="'img:https://ui-avatars.com/api/?name=' + userStore.user.name[0] + '+' + userStore.user.surname[0]"
         />
         <q-btn-dropdown
           id="statusButton"
@@ -210,13 +230,22 @@ const leaveRoomButtonTapped = (index: number) => {
       <div id="filed-container">
         <q-input
           id="messagesField"
-          model-value=""
+          v-model="messageField"
           placeholder="Message/Command"
+          @keydown.enter="onSend"
           outlined
           dense
           :style="{ width: '90%' }"
         />
-        <q-btn id="sendButton" icon="send" size="lg" color="blue" round dense />
+        <q-btn
+          id="sendButton"
+          icon="send"
+          size="lg"
+          color="blue"
+          @click="onSend"
+          round
+          dense
+        />
       </div>
     </div>
   </div>

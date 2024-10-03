@@ -8,26 +8,73 @@ const router = useRouter()
 const userStore = useUserStore();
 const selectedChatRoomStore = useSelectedChatStore()
 
-if (selectedChatRoomStore.chatRoom == null) {
+if (selectedChatRoomStore.chatRoom) {
+
+} else {
   router.push({ name: 'home' })
 }
+
+const firstNames: string[] = [
+  'John', 'Jane', 'Alice', 'Bob', 'Emily',
+  'Michael', 'Sarah', 'David', 'Emma', 'Chris',
+  'Olivia', 'James', 'Sophia', 'Liam', 'Isabella',
+  'William', 'Ava', 'Ethan', 'Mia', 'Alexander'
+];
+
+const lastNames: string[] = [
+  'Doe', 'Smith', 'Johnson', 'Brown', 'Davis',
+  'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson',
+  'Thomas', 'Jackson', 'White', 'Harris', 'Martin',
+  'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark'
+];
+
+const messages: string[] = [
+  // Short Messages
+  'Hi there!',
+  'Good job!',
+  'All set!',
+  'See you soon!',
+  'Try again!',
+  'Welcome!',
+  'Done!',
+  'Error!',
+
+  // Mid-Length Messages
+  'Your changes have been saved.',
+  'We received your request.',
+  'Check your inbox for details.',
+  'Your profile has been updated successfully.',
+  'You’ve been logged out automatically.',
+  'Please complete all required fields.',
+  'Action required: Please review your input.',
+  'We are processing your request.',
+
+  // Longer Messages
+  'Thank you for submitting your feedback! We value your opinion and will take it into consideration.',
+  'Your account is now active. You can start exploring the platform and customizing your experience.',
+  'We’re sorry, but there was an issue with your request. Please try again or contact support if the issue persists.',
+  'Congratulations! Your transaction was successful, and we’ve sent you a confirmation email with all the details.',
+  'Your session has expired due to inactivity. Please log in again to continue where you left off.',
+  'Thank you for joining our community! We’re excited to have you on board and hope you enjoy your experience.'
+];
 
 const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void => {
   setTimeout(() => {
     for (let i = 0; i < 13; i++) {
+      const userId = Math.random() > 0.2 ? 4 : userStore.user.id
       selectedChatRoomStore.chatRoom?.messages.unshift({
         id: 3,
-        content: 'Dsfsdfdsgjsdngjnsgjn',
+        content: messages[Math.floor(Math.random() * messages.length)],
         sender: {
-          id: Math.random() > 0.2 ? 4 : -1,
-          name: 'Name',
-          surname: 'Surname',
-          status: Math.floor(Math.random() * 3),
+          id: userId,
+          name: userId == -1 ? userStore.user.name : firstNames[Math.floor(Math.random() * firstNames.length)],
+          surname: userId == -1 ? userStore.user.surname : lastNames[Math.floor(Math.random() * lastNames.length)],
+          status: Math.floor(Math.random() * 3)
         }
       })
     }
     done()
-  }, 2000)
+  }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500)
 }
 
 </script>
@@ -74,13 +121,23 @@ const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void
         </div>
       </template>
 
-      <q-chat-message
-        v-for="(message, index) in selectedChatRoomStore.chatRoom?.messages"
-        :key="index"
-        :name="message.sender.name + ' ' + message.sender.surname"
-        :text="[ message.content ]"
-        :sent="message.sender.id == userStore.user.id"
-      />
+      <div id="chat-message-wrapper" v-for="(message, index) in selectedChatRoomStore.chatRoom?.messages" :key="index">
+        <div id="avatar-status-wrapper">
+          <q-chat-message
+          :avatar="'https://ui-avatars.com/api/?name=' + message.sender.name[0] + '+' + message.sender.surname[0]"
+          :name="message.sender.id == userStore.user.id ? '' : message.sender.name + ' ' + message.sender.surname"
+          :text="[ message.content ]"
+          :sent="message.sender.id == userStore.user.id"
+          />
+          <q-avatar
+          v-if="message.sender.id != userStore.user.id"
+          id="statusAvatar"
+          :color="message.sender.status == 0 ? 'grey' : message.sender.status == 1 ? 'green' : 'red'"
+          size="2vh"
+          />
+        </div>
+      </div>
+
     </q-infinite-scroll>
   </div>
 
@@ -151,6 +208,24 @@ const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void
 #scroll-container {
   height: 90%;
   width: 100%;
+}
+
+#chat-message-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+#avatar-status-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+#statusAvatar {
+  position: absolute;
+  bottom: 6px;
+  left: 31px;
 }
 
 </style>
