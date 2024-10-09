@@ -1,15 +1,18 @@
 <script setup lang="ts">
 
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from 'stores/userStore';
-import { useSelectedChatStore } from 'stores/selectedChatStore';
+import { useChatsStore } from 'stores/chatsStore';
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore();
-const selectedChatRoomStore = useSelectedChatStore()
+const chatsStore = useChatsStore()
 
-if (selectedChatRoomStore.chatRoom) {
+const selectedChatRoom = chatsStore.chats.find(chat => chat.id.toString() === route.params.id);
 
+if (selectedChatRoom != undefined) {
+  chatsStore.selectedChat = selectedChatRoom
 } else {
   router.push({ name: 'home' })
 }
@@ -62,7 +65,7 @@ const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void
   setTimeout(() => {
     for (let i = 0; i < 13; i++) {
       const userId = Math.random() > 0.2 ? 4 : userStore.user.id
-      selectedChatRoomStore.chatRoom?.messages.unshift({
+      selectedChatRoom?.messages.unshift({
         id: 3,
         content: messages[Math.floor(Math.random() * messages.length)],
         sender: {
@@ -84,7 +87,7 @@ const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void
   <div id="chat-room-info-container">
     <div id="image-container">
       <div id="image">
-        <p>{{ selectedChatRoomStore.chatRoom?.name[0] }}</p>
+        <p>{{ selectedChatRoom?.name[0] }}</p>
       </div>
       <q-avatar
         id="roomTypeAvatar"
@@ -92,13 +95,13 @@ const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void
         size="20px"
         font-size="80%"
         text-color="black"
-        :icon="selectedChatRoomStore.chatRoom?.isPrivate ? 'lock' : 'language'"
+        :icon="selectedChatRoom?.isPrivate ? 'lock' : 'language'"
       />
     </div>
 
     <div id="chat-info-container">
-      <p id="chatNameLabel">{{ selectedChatRoomStore.chatRoom?.name }}</p>
-      <p v-if="selectedChatRoomStore.chatRoom?.inviteFrom != null" id="invitedByLabel">Invite from: <br>@{{ selectedChatRoomStore.chatRoom?.inviteFrom }}</p>
+      <p id="chatNameLabel">{{ selectedChatRoom?.name }}</p>
+      <p v-if="selectedChatRoom?.inviteFrom != null" id="invitedByLabel">Invite from: <br>@{{ selectedChatRoom?.inviteFrom }}</p>
     </div>
 
     <q-btn
@@ -121,7 +124,7 @@ const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void
         </div>
       </template>
 
-      <div id="chat-message-wrapper" v-for="(message, index) in selectedChatRoomStore.chatRoom?.messages" :key="index">
+      <div id="chat-message-wrapper" v-for="(message, index) in selectedChatRoom?.messages" :key="index">
         <div id="avatar-status-wrapper">
           <q-chat-message
           :avatar="'https://ui-avatars.com/api/?name=' + message.sender.name[0] + '+' + message.sender.surname[0]"

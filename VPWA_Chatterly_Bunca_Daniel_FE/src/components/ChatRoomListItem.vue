@@ -1,24 +1,25 @@
 <script setup lang="ts">
 
 import { ChatRoom } from 'components/models';
-import { useSelectedChatStore } from 'stores/selectedChatStore';
 import { useRouter } from 'vue-router';
+import { useChatsStore } from 'stores/chatsStore';
 
 const router = useRouter()
-
-const selectedChatStore = useSelectedChatStore()
+const chatsStore = useChatsStore()
 
 const props = withDefaults(defineProps<ChatRoom>(), {});
 
-const emits = defineEmits(['deleteClicked'])
-
 const leaveRoomButtonClicked = () => {
-  emits('deleteClicked')
+  const chatIndex = chatsStore.chats.findIndex(chat => chat.id === props.id)
+  chatsStore.chats.splice(chatIndex, 1)
+  if (chatsStore.selectedChat?.id === props.id) {
+    chatsStore.selectedChat = null
+    router.push({ name: 'home' })
+  }
 }
 
 const onCellClicked = () => {
-  selectedChatStore.chatRoom = props
-  router.push({ name: 'chat' })
+  router.push({ name: 'chat', params: { id: props.id } })
 }
 
 </script>

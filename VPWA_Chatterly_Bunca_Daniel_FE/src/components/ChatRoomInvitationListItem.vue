@@ -1,12 +1,23 @@
 <script setup lang="ts">
 
 import { ChatRoomInvitation } from 'components/models';
+import { useChatsStore } from 'stores/chatsStore';
 
-withDefaults(defineProps<ChatRoomInvitation>(), {
+const chatsStore = useChatsStore()
 
-});
+const props = withDefaults(defineProps<ChatRoomInvitation>(), {});
 
-const emits = defineEmits(['acceptClicked', 'rejectClicked']);
+const acceptClicked = () => {
+  const invitationIndex = chatsStore.invitations.findIndex(chatInvitation => chatInvitation.id === props.id);
+  const invitation = chatsStore.invitations[invitationIndex];
+  chatsStore.invitations.splice(invitationIndex, 1);
+  chatsStore.chats.push(invitation)
+}
+
+const rejectClicked = () => {
+  const invitationIndex = chatsStore.invitations.findIndex(chatInvitation => chatInvitation.id === props.id);
+  chatsStore.invitations.splice(invitationIndex, 1);
+}
 
 </script>
 
@@ -37,7 +48,7 @@ const emits = defineEmits(['acceptClicked', 'rejectClicked']);
       text-color="white"
       color="green"
       size="md"
-      @click="emits('acceptClicked')"
+      @click="acceptClicked"
       dense
     />
 
@@ -47,7 +58,7 @@ const emits = defineEmits(['acceptClicked', 'rejectClicked']);
       text-color="white"
       color="red"
       size="md"
-      @click="emits('rejectClicked')"
+      @click="rejectClicked"
       dense
     />
   </div>

@@ -5,13 +5,13 @@ import StatusListItem from 'components/StatusListItem.vue';
 import ChatRoomInvitationListItem from 'components/ChatRoomInvitationListItem.vue';
 import ChatRoomListItem from 'components/ChatRoomListItem.vue';
 import { useUserStore } from 'stores/userStore';
-import { ChatRoom, ChatRoomInvitation, Status } from 'components/models';
-import { useSelectedChatStore } from 'stores/selectedChatStore';
+import { Status } from 'components/models';
+import { useChatsStore } from 'stores/chatsStore';
 
 const router = useRouter();
 
 const userStore = useUserStore();
-const selectedChatStore = useSelectedChatStore()
+const chatsStore = useChatsStore()
 
 const statuses: Status[] = [
   {
@@ -46,57 +46,11 @@ const logOut = () => {
   router.push({ name: 'login' });
 };
 
-const chatRoomInvitations = ref<ChatRoomInvitation[]>([]);
-
-const adjectives = [
-  'Nebula', 'Star', 'Cosmic', 'Galactic', 'Quantum', 'Astro', 'Pulsar', 'Photon', 'Nova', 'Quasar', 'Celestial', 'Stellar'
-];
-
-const nouns = [
-  'Whisper', 'Dust', 'Voyage', 'Pulse', 'Echo', 'Flare', 'Wave', 'Comms', 'Currents', 'Beam', 'Lounge', 'Chatter'
-];
-
-for (let i = 0; i < 3; i++) {
-  chatRoomInvitations.value.push({
-    id: i,
-    name: adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + nouns[Math.floor(Math.random() * nouns.length)],
-    isPrivate: Math.random() > 0.5,
-    inviteFrom: 'nickname',
-    messages: []
-  });
-}
-
-const chatRooms = ref<ChatRoom[]>([]);
-
-for (let i = 0; i < 15; i++) {
-  chatRooms.value.push({
-    id: i,
-    name: adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + nouns[Math.floor(Math.random() * nouns.length)],
-    isPrivate: Math.random() > 0.5,
-    inviteFrom: Math.random() > 0.5 ? 'nickname' : null,
-    messages: []
-  });
-}
-
-const acceptRoomInvitationButtonTapped = (index: number) => {
-  const chatRoomInvitation = chatRoomInvitations.value[index];
-  chatRoomInvitations.value.splice(index, 1);
-  chatRooms.value.push(chatRoomInvitation);
-};
-
-const rejectRoomInvitationButtonTapped = (index: number) => {
-  chatRoomInvitations.value.splice(index, 1);
-};
-
-const leaveRoomButtonTapped = (index: number) => {
-  chatRooms.value.splice(index, 1);
-};
-
 const messageField = ref('')
 
 const onSend = () => {
-  if (selectedChatStore.chatRoom != null) {
-    selectedChatStore.chatRoom?.messages.push({
+  if (chatsStore.selectedChat != null) {
+    chatsStore.selectedChat?.messages.push({
       id: 1,
       content: messageField.value,
       sender: {
@@ -195,20 +149,17 @@ const onSend = () => {
             <p style="margin-bottom: 0; margin-top: 10px">Chat invitations</p>
 
             <ChatRoomInvitationListItem
-              v-for="(invitation, index) in chatRoomInvitations"
+              v-for="(invitation, index) in chatsStore.invitations"
               :key="index"
               v-bind="invitation"
-              @accept-clicked="acceptRoomInvitationButtonTapped(index)"
-              @reject-clicked="rejectRoomInvitationButtonTapped(index)"
             />
 
             <p style="margin-bottom: 0">Chats</p>
 
             <ChatRoomListItem
-              v-for="(chatRoom, index) in chatRooms"
+              v-for="(chatRoom, index) in chatsStore.chats"
               :key="index"
               v-bind="chatRoom"
-              @delete-clicked="leaveRoomButtonTapped(index)"
             />
           </q-list>
         </q-scroll-area>
