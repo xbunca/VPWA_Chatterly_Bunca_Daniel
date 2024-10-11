@@ -63,11 +63,15 @@ const onSend = () => {
     messageField.value = '';
   }
 }
+
+const addChatTapped = () => {
+  router.push({ name: 'joinChat' });
+}
 </script>
 
 <template>
   <div id="top-container">
-    <div id="logo-container">
+    <div id="logo-container" @click="router.push({ name: 'home' })">
       <q-img id="logo" src="src/assets/logo.png" fit="scale-down" />
       <h6>Chatterly</h6>
     </div>
@@ -171,6 +175,7 @@ const onSend = () => {
           icon="add"
           unelevated
           dense
+          @click="addChatTapped"
         />
       </div>
     </div>
@@ -219,6 +224,7 @@ const onSend = () => {
   align-items: center;
   display: flex;
   flex-direction: row;
+  cursor: pointer;
 }
 
 #logo {

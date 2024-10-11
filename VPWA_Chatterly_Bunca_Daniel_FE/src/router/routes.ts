@@ -33,6 +33,11 @@ const routes: RouteRecordRaw[] = [
         path: '/home/chat/:id',
         name: 'chat',
         component: () => import('pages/ChatRoomPage.vue')
+      },
+      {
+        path: '/home/chat/join',
+        name: 'joinChat',
+        component: () => import('pages/CreateChatPage.vue')
       }
     ]
   },
