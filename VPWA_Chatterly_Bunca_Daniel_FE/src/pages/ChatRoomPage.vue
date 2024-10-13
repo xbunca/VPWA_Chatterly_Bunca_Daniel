@@ -3,6 +3,7 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from 'stores/userStore';
 import { generateMessages, useChatsStore } from 'stores/chatsStore';
+import { onBeforeUnmount } from 'vue';
 
 const router = useRouter()
 const route = useRoute()
@@ -23,6 +24,10 @@ const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void
     done()
   }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500)
 }
+
+onBeforeUnmount(() => {
+  chatsStore.selectedChat = null
+})
 
 </script>
 

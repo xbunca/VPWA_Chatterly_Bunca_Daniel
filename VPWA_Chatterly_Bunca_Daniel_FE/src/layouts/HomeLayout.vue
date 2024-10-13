@@ -7,6 +7,7 @@ import ChatRoomListItem from 'components/ChatRoomListItem.vue';
 import { useUserStore } from 'stores/userStore';
 import { Status } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
+import ChanelUserListItem from 'components/ChanelUserListItem.vue';
 
 const router = useRouter();
 
@@ -41,6 +42,7 @@ const statuses: Status[] = [
 ];
 
 const selectedStatus = ref<Status>(statuses[userStore.user.status]);
+const chanelUserList = ref(false)
 
 const logOut = () => {
   router.push({ name: 'login' });
@@ -49,20 +51,37 @@ const logOut = () => {
 const messageField = ref('')
 
 const onSend = () => {
-  if (chatsStore.selectedChat != null) {
-    chatsStore.selectedChat?.messages.push({
-      id: 1,
-      content: messageField.value,
-      sender: {
-        id: userStore.user.id,
-        name: userStore.user.name,
-        surname: userStore.user.surname,
-        nickname: userStore.user.nickname,
-        status: userStore.user.status
-      }
-    });
-    messageField.value = '';
+  const message = messageField.value
+
+  if (message[0] == '/') {
+
+    const chatIsSelected = chatsStore.selectedChat != null
+
+    switch (message) {
+      case '/list':
+        if (chatIsSelected) {
+          chanelUserList.value = true
+        }
+        break
+    }
+
+  } else {
+    if (chatsStore.selectedChat != null) {
+      chatsStore.selectedChat?.messages.push({
+        id: 1,
+        content: message,
+        sender: {
+          id: userStore.user.id,
+          name: userStore.user.name,
+          surname: userStore.user.surname,
+          nickname: userStore.user.nickname,
+          status: userStore.user.status
+        }
+      });
+    }
   }
+
+  messageField.value = '';
 }
 
 const addChatTapped = () => {
@@ -151,7 +170,7 @@ const addChatTapped = () => {
       <div id="chats-list-container">
         <q-scroll-area id="chats-list-scroll">
           <q-list class="flex flex-center" style="row-gap: 10px">
-            <p style="margin-bottom: 0; margin-top: 10px">Chat invitations</p>
+            <p v-if="chatsStore.invitations.length !== 0" style="margin-bottom: 0; margin-top: 10px">Chat invitations</p>
 
             <ChatRoomInvitationListItem
               v-for="(invitation, index) in chatsStore.invitations"
@@ -159,7 +178,7 @@ const addChatTapped = () => {
               v-bind="invitation"
             />
 
-            <p style="margin-bottom: 0">Chats</p>
+            <p :style="{ marginBottom: '0', marginTop: chatsStore.invitations.length === 0 ? '10px' : '0px'}">Chats</p>
 
             <ChatRoomListItem
               v-for="(chatRoom, index) in chatsStore.chats"
@@ -206,6 +225,24 @@ const addChatTapped = () => {
       </div>
     </div>
   </div>
+
+  <q-dialog v-model="chanelUserList">
+    <q-card style="width: 100%">
+      <q-card-section>
+        <div class="text-h6">User list in {{ chatsStore.selectedChat?.name }} chat</div>
+      </q-card-section>
+
+      <q-separator/>
+
+      <q-card-section style="max-height: 50vh" class="scroll">
+        <ChanelUserListItem
+          v-for="(sender, index) in chatsStore.selectedChat?.users"
+          :key="index"
+          v-bind="sender"
+        />
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <style scoped>

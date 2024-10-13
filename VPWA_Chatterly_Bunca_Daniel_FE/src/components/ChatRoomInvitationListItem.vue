@@ -117,12 +117,12 @@ const rejectClicked = () => {
 
 #acceptButton {
   position: absolute;
-  right: 24%;
+  right: 20%;
 }
 
 #denyButton {
   position: absolute;
-  right: 10%;
+  right: 6%;
 }
 
 </style>

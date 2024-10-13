@@ -111,7 +111,7 @@ const onCellClicked = () => {
 
 #leaveRoomButton {
   position: absolute;
-  right: 10%;
+  right: 6%;
 }
 
 </style>
