@@ -2,7 +2,7 @@
 
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from 'stores/userStore';
-import { useChatsStore } from 'stores/chatsStore';
+import { generateMessages, useChatsStore } from 'stores/chatsStore';
 
 const router = useRouter()
 const route = useRoute()
@@ -17,65 +17,9 @@ if (selectedChatRoom != undefined) {
   router.push({ name: 'home' })
 }
 
-const firstNames: string[] = [
-  'John', 'Jane', 'Alice', 'Bob', 'Emily',
-  'Michael', 'Sarah', 'David', 'Emma', 'Chris',
-  'Olivia', 'James', 'Sophia', 'Liam', 'Isabella',
-  'William', 'Ava', 'Ethan', 'Mia', 'Alexander'
-];
-
-const lastNames: string[] = [
-  'Doe', 'Smith', 'Johnson', 'Brown', 'Davis',
-  'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson',
-  'Thomas', 'Jackson', 'White', 'Harris', 'Martin',
-  'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark'
-];
-
-const messages: string[] = [
-  // Short Messages
-  'Hi there!',
-  'Good job!',
-  'All set!',
-  'See you soon!',
-  'Try again!',
-  'Welcome!',
-  'Done!',
-  'Error!',
-
-  // Mid-Length Messages
-  'Your changes have been saved.',
-  'We received your request.',
-  'Check your inbox for details.',
-  'Your profile has been updated successfully.',
-  'You’ve been logged out automatically.',
-  'Please complete all required fields.',
-  'Action required: Please review your input.',
-  'We are processing your request.',
-
-  // Longer Messages
-  'Thank you for submitting your feedback! We value your opinion and will take it into consideration.',
-  'Your account is now active. You can start exploring the platform and customizing your experience.',
-  'We’re sorry, but there was an issue with your request. Please try again or contact support if the issue persists.',
-  'Congratulations! Your transaction was successful, and we’ve sent you a confirmation email with all the details.',
-  'Your session has expired due to inactivity. Please log in again to continue where you left off.',
-  'Thank you for joining our community! We’re excited to have you on board and hope you enjoy your experience.'
-];
-
 const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void => {
   setTimeout(() => {
-    for (let i = 0; i < 13; i++) {
-      const userId = Math.random() > 0.2 ? 4 : userStore.user.id
-      selectedChatRoom?.messages.unshift({
-        id: 3,
-        content: messages[Math.floor(Math.random() * messages.length)],
-        sender: {
-          id: userId,
-          name: userId == -1 ? userStore.user.name : firstNames[Math.floor(Math.random() * firstNames.length)],
-          surname: userId == -1 ? userStore.user.surname : lastNames[Math.floor(Math.random() * lastNames.length)],
-          status: Math.floor(Math.random() * 3)
-        }
-      })
-    }
+    generateMessages(selectedChatRoom!, userStore.user, Math.floor(Math.random() * (15 - 3 + 1)) + 3);
     done()
   }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500)
 }

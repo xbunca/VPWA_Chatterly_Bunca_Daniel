@@ -23,10 +23,11 @@ export interface Status {
   onClickEvent?: () => void;
 }
 
-interface Sender {
+export interface Sender {
   id: number;
   name: string;
   surname: string;
+  nickname: string;
   status: number;
 }
 
@@ -41,6 +42,7 @@ export interface ChatRoom {
   name: string;
   isPrivate: boolean;
   inviteFrom: string | null;
+  users: Sender[];
   messages: Message[];
 }
 

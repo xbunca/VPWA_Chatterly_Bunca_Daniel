@@ -57,6 +57,7 @@ const onSend = () => {
         id: userStore.user.id,
         name: userStore.user.name,
         surname: userStore.user.surname,
+        nickname: userStore.user.nickname,
         status: userStore.user.status
       }
     });

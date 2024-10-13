@@ -41,6 +41,7 @@ const createTapped = () => {
     name: chatRoomName,
     isPrivate: isPrivateRoom.value,
     inviteFrom: null,
+    users: [],
     messages: []
   })
 
