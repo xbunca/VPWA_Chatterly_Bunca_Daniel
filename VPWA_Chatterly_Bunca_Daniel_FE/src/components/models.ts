@@ -40,6 +40,7 @@ export interface Message {
 export interface ChatRoom {
   id: number;
   name: string;
+  ownerId: number;
   isPrivate: boolean;
   inviteFrom: string | null;
   users: Sender[];

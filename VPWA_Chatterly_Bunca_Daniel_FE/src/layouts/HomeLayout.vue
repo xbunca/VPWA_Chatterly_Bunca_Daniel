@@ -57,12 +57,33 @@ const onSend = () => {
 
     const chatIsSelected = chatsStore.selectedChat != null
 
-    switch (message) {
+    const command = message.split(' ')[0];
+
+    switch (command) {
       case '/list':
         if (chatIsSelected) {
           chanelUserList.value = true
         }
         break
+      case '/join':
+        const channelName = message.split(' ')[1];
+        joinOrCreateChannel(channelName);
+        break
+      case '/invite':
+        if(chatIsSelected) {
+          //const userName = message.split(' ')[1];
+
+        }
+        break
+      case '/quit':
+        if(chatIsSelected && chatsStore.selectedChat?.ownerId == userStore.user.id) {
+          quitChat(chatsStore.selectedChat.id)
+        }
+        else {
+          console.log('You are not the owner of this chat.');
+        }
+        break;
+
     }
 
   } else {
@@ -87,6 +108,47 @@ const onSend = () => {
 const addChatTapped = () => {
   router.push({ name: 'joinChat' });
 }
+
+const joinOrCreateChannel = (channelName: string) => {
+  if (!channelName) {
+    console.log('Please provide a channel name.');
+    return;
+  }
+
+  let existingChannel = chatsStore.chats.find((chat) => chat.name === channelName);
+
+  if (!existingChannel) {
+    const newChatRoom = {
+      id: chatsStore.chats.length + 1,
+      name: channelName,
+      ownerId: userStore.user.id,
+      isPrivate: false,
+      inviteFrom: null,
+      users: [],
+      messages: []
+    };
+
+    chatsStore.chats.push(newChatRoom);
+    existingChannel = newChatRoom;
+  }
+
+  chatsStore.selectedChat = existingChannel;
+  console.log(`Joined channel: ${existingChannel.name}`);
+};
+
+const quitChat = (chatId: number) => {
+  const chatIndex = chatsStore.chats.findIndex((chat) => chat.id === chatId);
+
+  if (chatIndex !== -1) {
+    // Remove the chat from the list
+    chatsStore.chats.splice(chatIndex, 1);
+    chatsStore.selectedChat = null; // Deselect the current chat
+    console.log(`Chat with ID ${chatId} has been deleted.`);
+  } else {
+    console.log('Chat not found.');
+  }
+};
+
 </script>
 
 <template>

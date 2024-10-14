@@ -4,10 +4,12 @@ import { ref } from 'vue';
 import { useChatsStore } from 'stores/chatsStore';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import { useUserStore } from 'src/stores/userStore';
 
 const q = useQuasar()
 const router = useRouter()
 
+const userStore = useUserStore();
 const chatsStore = useChatsStore()
 
 const joinChatField = ref('')
@@ -39,6 +41,7 @@ const createTapped = () => {
   chatsStore.chats.push({
     id: chatId,
     name: chatRoomName,
+    ownerId: userStore.user.id,
     isPrivate: isPrivateRoom.value,
     inviteFrom: null,
     users: [],

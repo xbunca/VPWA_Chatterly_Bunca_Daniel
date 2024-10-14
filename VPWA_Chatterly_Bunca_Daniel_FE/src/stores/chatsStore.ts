@@ -105,23 +105,32 @@ export function generateMessages(chat: ChatRoom, user: User, count: number)  {
 }
 
 for (let i = 0; i < 3; i++) {
+  const users = generateSenders(Math.floor(Math.random() * (10 - 2 + 1)) + 2);
+  const owner = users[Math.floor(Math.random() * users.length)];
+  
   chatsStore.invitations.push({
     id: i,
     name: adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + nouns[Math.floor(Math.random() * nouns.length)],
+    ownerId: owner.id,
     isPrivate: Math.random() > 0.5,
     inviteFrom: 'nickname',
-    users: generateSenders(Math.floor(Math.random() * (10 - 2 + 1)) + 2),
+    users: users,
     messages: []
   });
 }
 
 for (let i = 3; i < 18; i++) {
+  const users = generateSenders(Math.floor(Math.random() * (10 - 2 + 1)) + 2);
+  const owner = users[Math.floor(Math.random() * users.length)];
+  
   chatsStore.chats.push({
     id: i,
     name: adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + nouns[Math.floor(Math.random() * nouns.length)],
+    ownerId: owner.id,
     isPrivate: Math.random() > 0.5,
     inviteFrom: Math.random() > 0.5 ? 'nickname' : null,
-    users: generateSenders(Math.floor(Math.random() * (10 - 2 + 1)) + 2),
+    users: users,
     messages: []
   });
 }
+
