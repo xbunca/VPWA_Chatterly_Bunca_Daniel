@@ -83,6 +83,10 @@ const onSend = () => {
           console.log('You are not the owner of this chat.');
         }
         break;
+      case '/cancel':
+        if(chatIsSelected && chatsStore.selectedChat) {
+          quitChat(chatsStore.selectedChat.id); //pri normalnej verzii to bude fungovat inak
+        }
 
     }
 
@@ -140,9 +144,8 @@ const quitChat = (chatId: number) => {
   const chatIndex = chatsStore.chats.findIndex((chat) => chat.id === chatId);
 
   if (chatIndex !== -1) {
-    // Remove the chat from the list
     chatsStore.chats.splice(chatIndex, 1);
-    chatsStore.selectedChat = null; // Deselect the current chat
+    chatsStore.selectedChat = null;
     console.log(`Chat with ID ${chatId} has been deleted.`);
   } else {
     console.log('Chat not found.');

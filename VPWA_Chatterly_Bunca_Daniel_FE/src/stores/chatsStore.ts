@@ -58,14 +58,14 @@ const messages: string[] = [
   'Your profile has been updated successfully.',
   'You’ve been logged out automatically.',
   'Please complete all required fields.',
-  'Action required: Please review your input.',
+  'Action required: Please @nickname review your input.',
   'We are processing your request.',
 
   // Longer Messages
   'Thank you for submitting your feedback! We value your opinion and will take it into consideration.',
   'Your account is now active. You can start exploring the platform and customizing your experience.',
   'We’re sorry, but there was an issue with your request. Please try again or contact support if the issue persists.',
-  'Congratulations! Your transaction was successful, and we’ve sent you a confirmation email with all the details.',
+  'Congratulations @nickname ! Your transaction was successful, and we’ve sent you a confirmation email with all the details.',
   'Your session has expired due to inactivity. Please log in again to continue where you left off.',
   'Thank you for joining our community! We’re excited to have you on board and hope you enjoy your experience.'
 ];
