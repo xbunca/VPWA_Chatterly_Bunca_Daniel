@@ -1,11 +1,11 @@
 import { RouteRecordRaw } from 'vue-router';
 
 const routes: RouteRecordRaw[] = [
-  {
+  /* {
     path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
-  },
+  }, */
 
   {
     path: '/auth',
@@ -25,21 +25,22 @@ const routes: RouteRecordRaw[] = [
   },
 
   {
-    path: '/home',
+    path: '/',
     name: 'home',
     component: () => import('layouts/HomeLayout.vue'),
     children: [
       {
         path: '',
+        name: 'welcomePage',
         component: () => import('pages/WelcomePage.vue')
       },
       {
-        path: '/home/chat/:id',
+        path: '/chat/:id',
         name: 'chat',
         component: () => import('pages/ChatRoomPage.vue')
       },
       {
-        path: '/home/chat/join',
+        path: '/chat/join',
         name: 'joinChat',
         component: () => import('pages/CreateChatPage.vue')
       }

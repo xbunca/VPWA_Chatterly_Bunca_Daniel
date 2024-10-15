@@ -153,7 +153,7 @@ const quitChat = (chatId: number) => {
 
 <template>
   <div id="top-container">
-    <div id="logo-container" @click="router.push({ name: 'home' })">
+    <div id="logo-container" @click="router.push({ name: 'welcomePage' })">
       <q-img id="logo" src="src/assets/logo.png" fit="scale-down" />
       <h6>Chatterly</h6>
     </div>
