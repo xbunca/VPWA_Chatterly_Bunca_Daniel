@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import StatusListItem from 'components/StatusListItem.vue';
 import ChatRoomInvitationListItem from 'components/ChatRoomInvitationListItem.vue';
@@ -49,6 +49,23 @@ const logOut = () => {
 };
 
 const messageField = ref('');
+
+const innerWidth = ref(window.innerWidth);
+const updateScreenWidth = () => {
+  innerWidth.value = window.innerWidth;
+};
+
+onBeforeMount(() => {
+  window.addEventListener('resize', updateScreenWidth);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', updateScreenWidth);
+});
+
+const showChatRoomsListTapped = () => {
+  chatsStore.chatListToggle = !chatsStore.chatListToggle;
+}
 
 const onSend = () => {
   const message = messageField.value;
@@ -112,6 +129,7 @@ const onSend = () => {
 };
 
 const addChatTapped = () => {
+  chatsStore.chatListToggle = false;
   router.push({ name: 'joinChat' });
 };
 
@@ -239,13 +257,13 @@ const quitChat = (chatId: number) => {
   </div>
 
   <div id="main-container">
-    <div id="chats-container">
+    <div id="chats-container" :style="{ display: innerWidth > 1030 ? 'block' : chatsStore.chatListToggle ? 'block' : 'none',  width: innerWidth > 1030 ? '250px' : '100%' }">
       <div id="chats-list-container">
         <q-scroll-area id="chats-list-scroll">
           <q-list class="flex flex-center" style="row-gap: 10px">
             <p
               v-if="chatsStore.invitations.length !== 0"
-              style="margin-bottom: 0; margin-top: 10px"
+              style="margin-bottom: 0; margin-top: 10px; width: 200px; text-align: center;"
             >
               Chat invitations
             </p>
@@ -260,6 +278,8 @@ const quitChat = (chatId: number) => {
               :style="{
                 marginBottom: '0',
                 marginTop: chatsStore.invitations.length === 0 ? '10px' : '0px',
+                width: '200px',
+                textAlign: 'center'
               }"
             >
               Chats
@@ -284,7 +304,7 @@ const quitChat = (chatId: number) => {
         />
       </div>
     </div>
-    <div id="room-container">
+    <div id="room-container" :style="{ display: innerWidth > 1030 ? 'block' : !chatsStore.chatListToggle ? 'block' : 'none' }">
       <div id="messages-container">
         <router-view />
       </div>
@@ -330,6 +350,18 @@ const quitChat = (chatId: number) => {
       </q-card-section>
     </q-card>
   </q-dialog>
+
+  <q-btn
+    id="showChatRoomsListButton"
+    icon="chevron_right"
+    color="black"
+    text-color="white"
+    size="30px"
+    @click="showChatRoomsListTapped"
+    :style="{ left: chatsStore.chatListToggle ? '' : '-25px', right: chatsStore.chatListToggle ? '-25px' : '', transform: chatsStore.chatListToggle ? 'rotate(180deg)' : 'rotate(0deg)' }"
+    round
+    dense
+  />
 </template>
 
 <style scoped>
@@ -342,7 +374,7 @@ const quitChat = (chatId: number) => {
 }
 
 #logo-container {
-  width: 15%;
+  width: 250px;
   height: 100%;
   position: relative;
   justify-content: flex-start;
@@ -358,7 +390,7 @@ const quitChat = (chatId: number) => {
 }
 
 #account-container {
-  width: 85%;
+  flex-grow: 1;
   height: 100%;
   position: relative;
   display: flex;
@@ -398,7 +430,7 @@ const quitChat = (chatId: number) => {
 }
 
 #chats-container {
-  width: 15%;
+  width: 250px;
   height: 100%;
   background: #f6f6f6;
   display: flex;
@@ -428,7 +460,7 @@ const quitChat = (chatId: number) => {
 }
 
 #room-container {
-  width: 85%;
+  flex-grow: 1;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -449,41 +481,21 @@ const quitChat = (chatId: number) => {
   height: 10%;
 }
 
-@media (max-width: 1200px) {
-  #room-container{
-    width: 78%;
-  }
-  #chats-container {
-    width: 22%;
-  }
+#showChatRoomsListButton {
+  position: absolute;
+  top: 45%;
+  display: none;
+  opacity: 70%;
 }
 
-@media (max-width: 850px) {
-  #room-container{
-    width: 70%;
-  }
-  #chats-container {
-    width: 30%;
-  }
-}
-
-
-@media (max-width: 500px) {
-  #room-container{
-    width: 60%;
-  }
-  #chats-container {
-    width: 40%;
-  }
-}
-
-@media (max-width: 300px) {
+@media (max-width: 1030px) {
   #logo-container {
-    width: 30%;
+    width: 150px;
   }
 
-  #account-container {
-    width: 70%;
+  #showChatRoomsListButton {
+    display: block;
   }
 }
+
 </style>

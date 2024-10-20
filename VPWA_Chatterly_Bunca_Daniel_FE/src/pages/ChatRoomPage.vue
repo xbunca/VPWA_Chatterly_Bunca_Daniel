@@ -65,7 +65,7 @@ const isAdressed = (messageContent: string, senderId: number): boolean => {
     if(element.includes('@' + userName)) {
       return true
     }
-    
+
   }
   return false
 }
@@ -162,7 +162,7 @@ onBeforeUnmount(() => {
 #image-container {
   display: flex;
   flex-direction: row;
-  margin-left: 1%;
+  margin-left: 15px;
 }
 
 #image {
@@ -224,14 +224,6 @@ onBeforeUnmount(() => {
   position: absolute;
   bottom: 6px;
   left: 31px;
-}
-
-@media (max-width: 300px) {
-  #chatNameLabel {
-    font-weight: bold;
-    font-size:  80%;
-    margin-bottom: 0;
-  }
 }
 
 </style>

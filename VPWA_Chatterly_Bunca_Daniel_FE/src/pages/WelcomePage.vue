@@ -39,4 +39,14 @@ p {
   font-size: 1.25rem;
   color: #555;
 }
+
+@media (max-width: 850px) {
+  h1 {
+    font-size: 2rem;
+  }
+
+  p {
+    font-size: 1rem;
+  }
+}
 </style>

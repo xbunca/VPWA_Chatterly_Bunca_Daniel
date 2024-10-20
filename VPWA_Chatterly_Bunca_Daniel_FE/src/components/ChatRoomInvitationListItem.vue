@@ -37,46 +37,43 @@ const rejectClicked = () => {
       />
     </div>
 
-    <div id="content-container">
+    <div id="chat-info-container">
       <p id="chatNameLabel">{{ name }}</p>
-      <div id="info-buttons-container">
-        <div id="chat-info-container">
-          <p id="invitedByLabel">Invite from: <br>@{{ inviteFrom }}</p>
-        </div>
-        <div id="buttons-container">
-          <q-btn
-            id="acceptButton"
-            icon="done"
-            text-color="white"
-            color="green"
-            size="sm"
-            @click="acceptClicked"
-            dense
-          />
-          <q-btn
-            id="denyButton"
-            icon="close"
-            text-color="white"
-            color="red"
-            size="sm"
-            @click="rejectClicked"
-            dense
-          />
-        </div>
-      </div>
+      <p id="invitedByLabel">Invite from: <br>@{{ inviteFrom }}</p>
     </div>
+
+    <q-btn
+      id="acceptButton"
+      icon="done"
+      text-color="white"
+      color="green"
+      size="md"
+      @click="acceptClicked"
+      dense
+    />
+
+    <q-btn
+      id="denyButton"
+      icon="close"
+      text-color="white"
+      color="red"
+      size="md"
+      @click="rejectClicked"
+      dense
+    />
   </div>
 </template>
 
 
 <style scoped>
+
 #container {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
   width: 95%;
-  height: auto;
+  height: 8vh;
   background: #d5d4d4;
 }
 
@@ -84,7 +81,6 @@ const rejectClicked = () => {
   display: flex;
   flex-direction: row;
   margin-left: 4%;
-  margin-right: -11%;
 }
 
 #image {
@@ -109,29 +105,10 @@ const rejectClicked = () => {
   top: 15px;
 }
 
-#content-container {
-  display: flex;
-  flex-direction: column;
-  margin-left: 10px;
-  flex-grow: 1;
-}
-
 #chatNameLabel {
   font-weight: bold;
-  font-size: 1em;
-  margin-bottom: 5px;
-}
-
-#info-buttons-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-#chat-info-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  font-size: 120%;
+  margin-bottom: 0;
 }
 
 #invitedByLabel {
@@ -139,51 +116,14 @@ const rejectClicked = () => {
   margin-bottom: 0;
 }
 
-#buttons-container {
-  display: flex;
-  flex-direction: row;
-  gap: 5px;
-  margin-right: 5px;
-}
-
 #acceptButton {
-  margin-left: 2px;
+  position: absolute;
+  right: 20%;
 }
 
 #denyButton {
-  margin-left: 2px;
-}
-
-@media (max-width: 300px) {
-  #container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  #content-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
-  }
-
-  #chatNameLabel,
-  #chat-info-container {
-    display: none;
-  }
-
-  #buttons-container {
-    flex-direction: row;
-    justify-content: center;
-    margin-left: 0;
-    margin-top: 10px;
-  }
-
-  #image-container {
-    margin-left: 0;
-  }
-
+  position: absolute;
+  right: 6%;
 }
 
 </style>
