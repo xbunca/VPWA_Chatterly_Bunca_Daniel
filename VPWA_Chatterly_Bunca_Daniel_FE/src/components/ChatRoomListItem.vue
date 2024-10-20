@@ -28,37 +28,45 @@ const onCellClicked = () => {
 </script>
 
 <template>
-<div id="container" @click="onCellClicked">
-  <div id="image-container">
-    <div id="image">
-      <p>{{ name[0] }}</p>
+  <div id="container" @click="onCellClicked">
+    <div id="image-container">
+      <div id="image">
+        <p>{{ name[0] }}</p>
+      </div>
+      <q-avatar
+        id="roomTypeAvatar"
+        color="white"
+        size="20px"
+        font-size="80%"
+        text-color="black"
+        :icon="isPrivate ? 'lock' : 'language'"
+      />
     </div>
-    <q-avatar
-      id="roomTypeAvatar"
-      color="white"
-      size="20px"
-      font-size="80%"
-      text-color="black"
-      :icon="isPrivate ? 'lock' : 'language'"
-    />
-  </div>
 
-  <div id="chat-info-container">
-    <p id="chatNameLabel">{{ name }}</p>
-    <p v-if="inviteFrom != null" id="invitedByLabel">Invite from: <br>@{{ inviteFrom }}</p>
+    <div id="content-container">
+      <p id="chatNameLabel">{{ name }}</p>
+      <div id="info-buttons-container">
+        <div id="chat-info-container">
+          <p v-if="inviteFrom != null" id="invitedByLabel">
+            Invite from: <br />@{{ inviteFrom }}
+          </p>
+        </div>
+        <div id="buttons-container">
+          <q-btn
+            id="leaveRoomButton"
+            icon="delete"
+            text-color="white"
+            color="red"
+            size="sm"
+            @click.stop="leaveRoomButtonClicked"
+            dense
+          />
+        </div>
+      </div>
+    </div>
   </div>
-
-  <q-btn
-    id="leaveRoomButton"
-    icon="delete"
-    text-color="white"
-    color="red"
-    size="md"
-    @click.stop="leaveRoomButtonClicked"
-    dense
-  />
-</div>
 </template>
+
 
 <style scoped>
 
@@ -68,7 +76,7 @@ const onCellClicked = () => {
   justify-content: flex-start;
   align-items: center;
   width: 95%;
-  height: 8vh;
+  height: auto;
   background: #d5d4d4;
   cursor: pointer;
 }
@@ -101,10 +109,29 @@ const onCellClicked = () => {
   top: 15px;
 }
 
+#content-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  flex-grow: 1;
+}
+
 #chatNameLabel {
   font-weight: bold;
   font-size: 120%;
-  margin-bottom: 0;
+  margin-bottom: 5px;
+}
+
+#info-buttons-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#chat-info-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 #invitedByLabel {
@@ -112,9 +139,14 @@ const onCellClicked = () => {
   margin-bottom: 0;
 }
 
+#buttons-container {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
 #leaveRoomButton {
-  position: absolute;
-  right: 6%;
+  margin-left: 2px;
 }
 
 </style>

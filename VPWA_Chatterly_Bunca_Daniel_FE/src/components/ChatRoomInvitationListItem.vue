@@ -37,42 +37,46 @@ const rejectClicked = () => {
       />
     </div>
 
-    <div id="chat-info-container">
+    <div id="content-container">
       <p id="chatNameLabel">{{ name }}</p>
-      <p id="invitedByLabel">Invite from: <br>@{{ inviteFrom }}</p>
+      <div id="info-buttons-container">
+        <div id="chat-info-container">
+          <p id="invitedByLabel">Invite from: <br>@{{ inviteFrom }}</p>
+        </div>
+        <div id="buttons-container">
+          <q-btn
+            id="acceptButton"
+            icon="done"
+            text-color="white"
+            color="green"
+            size="sm"
+            @click="acceptClicked"
+            dense
+          />
+          <q-btn
+            id="denyButton"
+            icon="close"
+            text-color="white"
+            color="red"
+            size="sm"
+            @click="rejectClicked"
+            dense
+          />
+        </div>
+      </div>
     </div>
-
-    <q-btn
-      id="acceptButton"
-      icon="done"
-      text-color="white"
-      color="green"
-      size="md"
-      @click="acceptClicked"
-      dense
-    />
-
-    <q-btn
-      id="denyButton"
-      icon="close"
-      text-color="white"
-      color="red"
-      size="md"
-      @click="rejectClicked"
-      dense
-    />
   </div>
 </template>
 
-<style scoped>
 
+<style scoped>
 #container {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
   align-items: center;
   width: 95%;
-  height: 8vh;
+  height: auto;
   background: #d5d4d4;
 }
 
@@ -104,10 +108,29 @@ const rejectClicked = () => {
   top: 15px;
 }
 
+#content-container {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  flex-grow: 1;
+}
+
 #chatNameLabel {
   font-weight: bold;
   font-size: 120%;
-  margin-bottom: 0;
+  margin-bottom: 5px;
+}
+
+#info-buttons-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#chat-info-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 #invitedByLabel {
@@ -115,14 +138,19 @@ const rejectClicked = () => {
   margin-bottom: 0;
 }
 
+#buttons-container {
+  display: flex;
+  flex-direction: row;
+  gap: 5px;
+  margin-right: 5px;
+}
+
 #acceptButton {
-  position: absolute;
-  right: 20%;
+  margin-left: 2px;
 }
 
 #denyButton {
-  position: absolute;
-  right: 6%;
+  margin-left: 2px;
 }
 
 </style>
