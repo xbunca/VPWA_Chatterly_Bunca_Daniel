@@ -73,7 +73,7 @@ const rejectClicked = () => {
   justify-content: flex-start;
   align-items: center;
   width: 95%;
-  height: 8vh;
+  height: 70px;
   background: #d5d4d4;
 }
 

@@ -358,7 +358,7 @@ const quitChat = (chatId: number) => {
     text-color="white"
     size="30px"
     @click="showChatRoomsListTapped"
-    :style="{ left: chatsStore.chatListToggle ? '' : '-25px', right: chatsStore.chatListToggle ? '-25px' : '', transform: chatsStore.chatListToggle ? 'rotate(180deg)' : 'rotate(0deg)' }"
+    :style="{ left: chatsStore.chatListToggle ? '' : '0px', right: chatsStore.chatListToggle ? '0px' : '', transform: chatsStore.chatListToggle ? 'rotate(180deg)' : 'rotate(0deg)' }"
     round
     dense
   />
@@ -382,6 +382,7 @@ const quitChat = (chatId: number) => {
   display: flex;
   flex-direction: row;
   cursor: pointer;
+  background-color: #ededed;
 }
 
 #logo {
@@ -432,7 +433,7 @@ const quitChat = (chatId: number) => {
 #chats-container {
   width: 250px;
   height: 100%;
-  background: #f6f6f6;
+  background: #e4e2e2;
   display: flex;
   flex-direction: column;
 }
