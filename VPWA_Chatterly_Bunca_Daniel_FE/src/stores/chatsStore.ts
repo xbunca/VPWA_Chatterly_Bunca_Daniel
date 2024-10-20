@@ -6,6 +6,7 @@ interface ChatsState {
   invitations: ChatRoomInvitation[];
   chats: ChatRoom[];
   chatListToggle: boolean;
+  chanelUserList: boolean;
   selectedChat: ChatRoom | null;
 }
 
@@ -14,6 +15,7 @@ export const useChatsStore = defineStore('chats',{
     invitations: [],
     chats: [],
     chatListToggle: false,
+    chanelUserList: false,
     selectedChat: null
   })
 })

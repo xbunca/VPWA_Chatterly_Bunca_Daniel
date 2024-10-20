@@ -42,7 +42,6 @@ const statuses: Status[] = [
 ];
 
 const selectedStatus = ref<Status>(statuses[userStore.user.status]);
-const chanelUserList = ref(false);
 
 const logOut = () => {
   router.push({ name: 'login' });
@@ -78,7 +77,7 @@ const onSend = () => {
     switch (command) {
       case '/list':
         if (chatIsSelected) {
-          chanelUserList.value = true;
+          chatsStore.chanelUserList = true;
         }
         break;
       case '/join':
@@ -331,7 +330,7 @@ const quitChat = (chatId: number) => {
     </div>
   </div>
 
-  <q-dialog v-model="chanelUserList">
+  <q-dialog v-model="chatsStore.chanelUserList">
     <q-card style="width: 100%">
       <q-card-section>
         <div class="text-h6">

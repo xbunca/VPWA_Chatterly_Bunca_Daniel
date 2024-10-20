@@ -99,6 +99,17 @@ onBeforeUnmount(() => {
     </div>
 
     <q-btn
+      id="listButton"
+      icon="group"
+      color="black"
+      size="lg"
+      @click="chatsStore.chanelUserList = true"
+      flat
+      rounded
+      dense
+    />
+
+    <q-btn
       id="closeButton"
       icon="close"
       color="black"
@@ -198,9 +209,14 @@ onBeforeUnmount(() => {
   margin-bottom: 0;
 }
 
+#listButton {
+  position: absolute;
+  right: 65px;
+}
+
 #closeButton {
   position: absolute;
-  right: 0.8%;
+  right: 10px;
 }
 
 #scroll-container {
