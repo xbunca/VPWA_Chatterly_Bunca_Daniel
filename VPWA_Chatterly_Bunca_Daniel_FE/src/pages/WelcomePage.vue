@@ -18,14 +18,14 @@
   justify-content: center;
   height: 100%;
   text-align: center;
-  background-color: #f6f6f6;
+  background-color: transparent;
 }
 
 #intro-content {
   background: white;
   padding: 2rem;
   border-radius: 8px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 h1 {
