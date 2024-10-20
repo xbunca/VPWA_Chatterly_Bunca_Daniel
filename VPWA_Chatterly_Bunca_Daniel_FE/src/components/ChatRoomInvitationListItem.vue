@@ -84,6 +84,7 @@ const rejectClicked = () => {
   display: flex;
   flex-direction: row;
   margin-left: 4%;
+  margin-right: -11%;
 }
 
 #image {
@@ -117,7 +118,7 @@ const rejectClicked = () => {
 
 #chatNameLabel {
   font-weight: bold;
-  font-size: 120%;
+  font-size: 1em;
   margin-bottom: 5px;
 }
 
