@@ -12,84 +12,85 @@ import ChanelUserListItem from 'components/ChanelUserListItem.vue';
 const router = useRouter();
 
 const userStore = useUserStore();
-const chatsStore = useChatsStore()
+const chatsStore = useChatsStore();
 
 const statuses: Status[] = [
   {
     color: 'grey',
     title: 'Offline',
     onClickEvent: () => {
-      userStore.user.status = 0
-      selectedStatus.value = statuses[0]
+      userStore.user.status = 0;
+      selectedStatus.value = statuses[0];
     },
   },
   {
     color: 'green',
     title: 'Online',
     onClickEvent: () => {
-      userStore.user.status = 1
-      selectedStatus.value = statuses[1]
+      userStore.user.status = 1;
+      selectedStatus.value = statuses[1];
     },
   },
   {
     color: 'red',
     title: 'Do not disturb',
     onClickEvent: () => {
-      userStore.user.status = 2
-      selectedStatus.value = statuses[2]
+      userStore.user.status = 2;
+      selectedStatus.value = statuses[2];
     },
   },
 ];
 
 const selectedStatus = ref<Status>(statuses[userStore.user.status]);
-const chanelUserList = ref(false)
+const chanelUserList = ref(false);
 
 const logOut = () => {
   router.push({ name: 'login' });
 };
 
-const messageField = ref('')
+const messageField = ref('');
 
 const onSend = () => {
-  const message = messageField.value
+  const message = messageField.value;
 
   if (message[0] == '/') {
-
-    const chatIsSelected = chatsStore.selectedChat != null
+    const chatIsSelected = chatsStore.selectedChat != null;
 
     const command = message.split(' ')[0];
 
     switch (command) {
       case '/list':
         if (chatIsSelected) {
-          chanelUserList.value = true
+          chanelUserList.value = true;
         }
-        break
+        break;
       case '/join':
         const channelName = message.split(' ')[1];
         joinOrCreateChannel(channelName);
-        break
+        break;
       case '/invite':
-        if(chatIsSelected) {
+        if (
+          chatIsSelected &&
+          chatsStore.selectedChat?.ownerId == userStore.user.id
+        ) {
           //const userName = message.split(' ')[1];
-
         }
-        break
+        break;
       case '/quit':
-        if(chatIsSelected && chatsStore.selectedChat?.ownerId == userStore.user.id) {
-          quitChat(chatsStore.selectedChat.id)
-        }
-        else {
+        if (
+          chatIsSelected &&
+          chatsStore.selectedChat?.ownerId == userStore.user.id
+        ) {
+          quitChat(chatsStore.selectedChat.id);
+        } else {
           console.log('You are not the owner of this chat.');
         }
         break;
       case '/cancel':
-        if(chatIsSelected && chatsStore.selectedChat) {
+        if (chatIsSelected && chatsStore.selectedChat) {
           quitChat(chatsStore.selectedChat.id); //pri normalnej verzii to bude fungovat inak
         }
-
     }
-
   } else {
     if (chatsStore.selectedChat != null) {
       chatsStore.selectedChat?.messages.push({
@@ -100,18 +101,18 @@ const onSend = () => {
           name: userStore.user.name,
           surname: userStore.user.surname,
           nickname: userStore.user.nickname,
-          status: userStore.user.status
-        }
+          status: userStore.user.status,
+        },
       });
     }
   }
 
   messageField.value = '';
-}
+};
 
 const addChatTapped = () => {
   router.push({ name: 'joinChat' });
-}
+};
 
 const joinOrCreateChannel = (channelName: string) => {
   if (!channelName) {
@@ -119,7 +120,9 @@ const joinOrCreateChannel = (channelName: string) => {
     return;
   }
 
-  let existingChannel = chatsStore.chats.find((chat) => chat.name === channelName);
+  let existingChannel = chatsStore.chats.find(
+    (chat) => chat.name === channelName
+  );
 
   if (!existingChannel) {
     const newChatRoom = {
@@ -129,7 +132,7 @@ const joinOrCreateChannel = (channelName: string) => {
       isPrivate: false,
       inviteFrom: null,
       users: [],
-      messages: []
+      messages: [],
     };
 
     chatsStore.chats.push(newChatRoom);
@@ -151,7 +154,6 @@ const quitChat = (chatId: number) => {
     console.log('Chat not found.');
   }
 };
-
 </script>
 
 <template>
@@ -168,7 +170,12 @@ const quitChat = (chatId: number) => {
           size="6.5vh"
           font-size="80%"
           text-color="white"
-          :icon="'img:https://ui-avatars.com/api/?name=' + userStore.user.name[0] + '+' + userStore.user.surname[0]"
+          :icon="
+            'img:https://ui-avatars.com/api/?name=' +
+            userStore.user.name[0] +
+            '+' +
+            userStore.user.surname[0]
+          "
         />
         <q-btn-dropdown
           id="statusButton"
@@ -235,7 +242,12 @@ const quitChat = (chatId: number) => {
       <div id="chats-list-container">
         <q-scroll-area id="chats-list-scroll">
           <q-list class="flex flex-center" style="row-gap: 10px">
-            <p v-if="chatsStore.invitations.length !== 0" style="margin-bottom: 0; margin-top: 10px">Chat invitations</p>
+            <p
+              v-if="chatsStore.invitations.length !== 0"
+              style="margin-bottom: 0; margin-top: 10px"
+            >
+              Chat invitations
+            </p>
 
             <ChatRoomInvitationListItem
               v-for="(invitation, index) in chatsStore.invitations"
@@ -243,7 +255,14 @@ const quitChat = (chatId: number) => {
               v-bind="invitation"
             />
 
-            <p :style="{ marginBottom: '0', marginTop: chatsStore.invitations.length === 0 ? '10px' : '0px'}">Chats</p>
+            <p
+              :style="{
+                marginBottom: '0',
+                marginTop: chatsStore.invitations.length === 0 ? '10px' : '0px',
+              }"
+            >
+              Chats
+            </p>
 
             <ChatRoomListItem
               v-for="(chatRoom, index) in chatsStore.chats"
@@ -294,10 +313,12 @@ const quitChat = (chatId: number) => {
   <q-dialog v-model="chanelUserList">
     <q-card style="width: 100%">
       <q-card-section>
-        <div class="text-h6">User list in {{ chatsStore.selectedChat?.name }} chat</div>
+        <div class="text-h6">
+          User list in {{ chatsStore.selectedChat?.name }} chat
+        </div>
       </q-card-section>
 
-      <q-separator/>
+      <q-separator />
 
       <q-card-section style="max-height: 50vh" class="scroll">
         <ChanelUserListItem

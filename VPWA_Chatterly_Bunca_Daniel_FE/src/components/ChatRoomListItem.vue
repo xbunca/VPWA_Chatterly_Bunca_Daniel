@@ -19,8 +19,11 @@ const leaveRoomButtonClicked = () => {
 }
 
 const onCellClicked = () => {
-  router.push({ name: 'chat', params: { id: props.id } })
-}
+  chatsStore.selectedChat = props;
+
+  router.push({ name: 'chat', params: { id: props.id } });
+};
+
 
 </script>
 

@@ -3,24 +3,52 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from 'stores/userStore';
 import { generateMessages, useChatsStore } from 'stores/chatsStore';
-import { onBeforeUnmount } from 'vue';
+import { onBeforeUnmount, watch, ref } from 'vue';
+import { ChatRoom } from 'src/components/models';
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore();
 const chatsStore = useChatsStore()
+const selectedChatRoom = ref<ChatRoom | null>(null);
 
-const selectedChatRoom = chatsStore.chats.find(chat => chat.id.toString() === route.params.id);
 
-if (selectedChatRoom != undefined) {
-  chatsStore.selectedChat = selectedChatRoom
-} else {
-  router.push({ name: 'home' })
-}
+const loadSelectedChatRoom = (chatId: string | string[]) => {
+
+  const id = Array.isArray(chatId) ? chatId[0] : chatId;
+
+  const chatRoom = chatsStore.chats.find(chat => chat.id.toString() === id);
+
+  if (chatRoom != undefined) {
+    chatsStore.selectedChat = chatRoom;
+    selectedChatRoom.value = chatRoom;
+
+  } else {
+    router.push({ name: 'home' });
+  }
+};
+
+loadSelectedChatRoom(route.params.id);
+
+watch(
+  () => chatsStore.selectedChat,
+  (newSelectedChat) => {
+    if (newSelectedChat) {
+      loadSelectedChatRoom(newSelectedChat.id.toString());
+    }
+  }
+);
+
+watch(
+  () => route.params.id,
+  (newId) => {
+    loadSelectedChatRoom(newId);
+  }
+);
 
 const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void => {
   setTimeout(() => {
-    generateMessages(selectedChatRoom!, userStore.user, Math.floor(Math.random() * (15 - 3 + 1)) + 3);
+    generateMessages(chatsStore.selectedChat!, userStore.user, Math.floor(Math.random() * (15 - 3 + 1)) + 3);
     done()
   }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500)
 }
