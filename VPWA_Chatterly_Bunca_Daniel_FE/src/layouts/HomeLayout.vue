@@ -398,7 +398,7 @@ const quitChat = (chatId: number) => {
 }
 
 #chats-container {
-  width: 15%;
+  width: 300px;
   height: 100%;
   background: #f6f6f6;
   display: flex;
@@ -428,7 +428,7 @@ const quitChat = (chatId: number) => {
 }
 
 #room-container {
-  width: 85%;
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -447,34 +447,6 @@ const quitChat = (chatId: number) => {
   justify-content: center;
   align-items: center;
   height: 10%;
-}
-
-@media (max-width: 1200px) {
-  #room-container{
-    width: 78%;
-  }
-  #chats-container {
-    width: 22%;
-  }
-}
-
-@media (max-width: 850px) {
-  #room-container{
-    width: 70%;
-  }
-  #chats-container {
-    width: 30%;
-  }
-}
-
-
-@media (max-width: 500px) {
-  #room-container{
-    width: 60%;
-  }
-  #chats-container {
-    width: 40%;
-  }
 }
 
 @media (max-width: 300px) {
