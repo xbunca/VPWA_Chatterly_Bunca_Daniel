@@ -449,6 +449,15 @@ const quitChat = (chatId: number) => {
   height: 10%;
 }
 
+@media (max-width: 1200px) {
+  #room-container{
+    width: 78%;
+  }
+  #chats-container {
+    width: 22%;
+  }
+}
+
 @media (max-width: 850px) {
   #room-container{
     width: 70%;
