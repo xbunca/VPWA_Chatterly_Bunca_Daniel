@@ -65,7 +65,8 @@ const onSend = () => {
         }
         break;
       case '/join':
-        const channelName = message.split(' ')[1];
+        const parts = message.split(' ');
+        const channelName = parts.slice(1).join(' ');
         joinOrCreateChannel(channelName);
         break;
       case '/invite':
@@ -140,7 +141,7 @@ const joinOrCreateChannel = (channelName: string) => {
   }
 
   chatsStore.selectedChat = existingChannel;
-  console.log(`Joined channel: ${existingChannel.name}`);
+  router.push({ name: 'chat', params: { id: existingChannel.id } });
 };
 
 const quitChat = (chatId: number) => {
