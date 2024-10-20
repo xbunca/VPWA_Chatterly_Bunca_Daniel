@@ -342,7 +342,7 @@ const quitChat = (chatId: number) => {
 }
 
 #logo-container {
-  width: 20%;
+  width: 15%;
   height: 100%;
   position: relative;
   justify-content: flex-start;
@@ -358,7 +358,7 @@ const quitChat = (chatId: number) => {
 }
 
 #account-container {
-  width: 100%;
+  width: 85%;
   height: 100%;
   position: relative;
   display: flex;
@@ -465,6 +465,16 @@ const quitChat = (chatId: number) => {
   }
   #chats-container {
     width: 40%;
+  }
+}
+
+@media (max-width: 300px) {
+  #logo-container {
+    width: 30%;
+  }
+
+  #account-container {
+    width: 70%;
   }
 }
 </style>

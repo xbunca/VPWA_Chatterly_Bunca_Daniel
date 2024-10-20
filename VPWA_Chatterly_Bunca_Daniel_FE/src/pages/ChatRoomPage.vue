@@ -226,4 +226,12 @@ onBeforeUnmount(() => {
   left: 31px;
 }
 
+@media (max-width: 300px) {
+  #chatNameLabel {
+    font-weight: bold;
+    font-size:  80%;
+    margin-bottom: 0;
+  }
+}
+
 </style>

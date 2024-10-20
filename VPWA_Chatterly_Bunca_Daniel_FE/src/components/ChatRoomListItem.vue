@@ -69,7 +69,6 @@ const onCellClicked = () => {
 
 
 <style scoped>
-
 #container {
   display: flex;
   flex-direction: row;
@@ -147,6 +146,36 @@ const onCellClicked = () => {
 
 #leaveRoomButton {
   margin-left: 2px;
+}
+
+@media (max-width: 300px) {
+  #container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #content-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  #chatNameLabel,
+  #chat-info-container {
+    display: none;
+  }
+
+  #buttons-container {
+    flex-direction: row;
+    justify-content: center;
+    margin-left: 0;
+    margin-top: 10px;
+  }
+
+  #image-container {
+    margin-left: 0;
+  }
 }
 
 </style>
