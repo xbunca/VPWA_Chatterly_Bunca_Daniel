@@ -12,7 +12,7 @@ export default class extends BaseSchema {
       table.string('email_address', 254).notNullable().unique()
       table.string('password').notNullable()
       table.boolean('notify_mentions_only').notNullable().defaultTo(false)
-      table.integer('status_id').notNullable().references('id').inTable('states')
+      table.integer('status_id').notNullable().references('id').inTable('states').defaultTo(2)
 
       table.timestamp('created_at').notNullable()
       table.timestamp('updated_at').nullable()
