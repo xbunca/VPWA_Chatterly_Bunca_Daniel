@@ -27,4 +27,11 @@ export default class UsersController {
       access_token: token.value!.release(),
     })
   }
+
+  async getAccount(context: HttpContext) {
+    const auth = context.auth
+    await auth.authenticate()
+    const user = context.auth.getUserOrFail()
+    return context.response.json(await user.getAccountJson())
+  }
 }

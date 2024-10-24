@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, column, belongsTo } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import State from '#models/state'
@@ -34,8 +34,11 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column()
   declare notifyMentionsOnly: boolean
 
+  @column()
+  declare stateId: number
+
   @belongsTo(() => State, {
-    foreignKey: 'state_id',
+    foreignKey: 'stateId',
   })
   declare state: BelongsTo<typeof State>
 
@@ -46,4 +49,14 @@ export default class User extends compose(BaseModel, AuthFinder) {
   declare updatedAt: DateTime | null
 
   static accessTokens = DbAccessTokensProvider.forModel(User)
+
+  async getAccountJson() {
+    return {
+      name: this.name,
+      surname: this.surname,
+      nickname: this.nickname,
+      notifyMentionsOnly: this.notifyMentionsOnly,
+      stateId: this.stateId,
+    }
+  }
 }
