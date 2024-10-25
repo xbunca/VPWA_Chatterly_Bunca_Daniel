@@ -37,13 +37,13 @@ export default class UsersController {
 
   async getAccount(context: HttpContext) {
     const user = context.auth.getUserOrFail()
-    return context.response.json(await user.getAccountJson())
+    return context.response.json(await user.getJson())
   }
 
   async updateAccount(context: HttpContext) {
     const user = context.auth.getUserOrFail()
     const payload = await context.request.validateUsing(updateAccountValidator)
     const updatedUser = await this.userService.updateUser(user, payload)
-    return context.response.json(await updatedUser.getAccountJson())
+    return context.response.json(await updatedUser.getJson())
   }
 }

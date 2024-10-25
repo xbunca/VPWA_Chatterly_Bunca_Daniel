@@ -50,7 +50,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
 
   static accessTokens = DbAccessTokensProvider.forModel(User)
 
-  async getAccountJson() {
+  async getJson() {
     return {
       name: this.name,
       surname: this.surname,
