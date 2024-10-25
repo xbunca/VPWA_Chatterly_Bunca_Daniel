@@ -28,6 +28,13 @@ export default class UsersController {
     })
   }
 
+  async logout(context: HttpContext) {
+    const user = context.auth.getUserOrFail()
+    const token = user.currentAccessToken
+    await User.accessTokens.delete(user, token.identifier)
+    return context.response.json(null)
+  }
+
   async getAccount(context: HttpContext) {
     const user = context.auth.getUserOrFail()
     return context.response.json(await user.getAccountJson())
