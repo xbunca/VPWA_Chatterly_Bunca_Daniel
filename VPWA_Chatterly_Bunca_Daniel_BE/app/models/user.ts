@@ -1,11 +1,13 @@
 import { DateTime } from 'luxon'
 import hash from '@adonisjs/core/services/hash'
 import { compose } from '@adonisjs/core/helpers'
-import { BaseModel, belongsTo, column } from '@adonisjs/lucid/orm'
+import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import { withAuthFinder } from '@adonisjs/auth/mixins/lucid'
 import { DbAccessTokensProvider } from '@adonisjs/auth/access_tokens'
 import State from '#models/state'
-import type { BelongsTo } from '@adonisjs/lucid/types/relations'
+import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import ChatRoomInvitation from '#models/chat_room_invitation'
+import ChatRoom from '#models/chat_room'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email_address', 'nickname'],
@@ -42,6 +44,14 @@ export default class User extends compose(BaseModel, AuthFinder) {
   })
   declare state: BelongsTo<typeof State>
 
+  @hasMany(() => ChatRoomInvitation)
+  declare chatRoomInvitations: HasMany<typeof ChatRoomInvitation>
+
+  @hasMany(() => ChatRoom, {
+    foreignKey: 'ownerId',
+  })
+  declare ownedChatRooms: HasMany<typeof ChatRoom>
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
@@ -58,5 +68,14 @@ export default class User extends compose(BaseModel, AuthFinder) {
       notifyMentionsOnly: this.notifyMentionsOnly,
       stateId: this.stateId,
     }
+  }
+
+  async getChatRoomsJson() {
+    await this.load('ownedChatRooms')
+    const chatRooms = []
+    for (const ownedChatRoom of this.ownedChatRooms) {
+      chatRooms.push(await ownedChatRoom.getJson())
+    }
+    return chatRooms
   }
 }

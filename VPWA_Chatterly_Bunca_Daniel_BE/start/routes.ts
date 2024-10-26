@@ -21,3 +21,4 @@ router.get('/api/account', [UsersController, 'getAccount']).use([middleware.auth
 router.patch('/api/account', [UsersController, 'updateAccount']).use([middleware.auth()])
 
 router.post('/api/chatRoom', [ChatRoomsController, 'create']).use([middleware.auth()])
+router.get('/api/chatRoom', [ChatRoomsController, 'getChatRooms']).use([middleware.auth()])

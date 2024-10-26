@@ -13,4 +13,9 @@ export default class ChatRoomsController {
     const chatRoom = await this.chatRoomService.createChatRoom(user, payload)
     return context.response.json(await chatRoom.getJson())
   }
+
+  async getChatRooms(context: HttpContext) {
+    const user = context.auth.getUserOrFail()
+    return context.response.json(await user.getChatRoomsJson())
+  }
 }
