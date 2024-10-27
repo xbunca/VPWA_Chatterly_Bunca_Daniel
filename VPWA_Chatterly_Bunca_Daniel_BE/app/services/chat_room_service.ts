@@ -1,6 +1,7 @@
 import ChatRoom from '#models/chat_room'
 import User from '#models/user'
 import ChatRoomInvitation from '#models/chat_room_invitation'
+import ChatRoomMembership from '#models/chat_room_membership'
 
 export default class ChatRoomService {
   async createChatRoom(user: User, payload: any): Promise<ChatRoom> {
@@ -59,5 +60,31 @@ export default class ChatRoomService {
       chatRoomId: chatRoom.id,
       userId: invitedUser.id,
     })
+  }
+
+  async responseToInvitation(user: User, invitationId: number, payload: any) {
+    const invitation = await ChatRoomInvitation.findOrFail(invitationId)
+
+    if (invitation.userId !== user.id) {
+      // TODO: throw exception
+      return
+    }
+
+    if (invitation.accepted !== null) {
+      // TODO: throw exception
+      return
+    }
+
+    const accept = payload.accept
+    invitation.accepted = accept
+    await invitation.save()
+
+    if (accept) {
+      await ChatRoomMembership.create({
+        userId: user.id,
+        chatRoomId: invitation.chatRoomId,
+        inviteId: invitation.id,
+      })
+    }
   }
 }

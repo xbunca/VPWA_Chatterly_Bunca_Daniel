@@ -12,3 +12,9 @@ export const createChatRoomValidator = vine.compile(
     private: vine.boolean(),
   })
 )
+
+export const invitationResponseValidator = vine.compile(
+  vine.object({
+    accept: vine.boolean(),
+  })
+)

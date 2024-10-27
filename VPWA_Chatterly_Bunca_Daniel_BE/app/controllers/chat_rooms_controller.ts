@@ -1,6 +1,6 @@
 import { HttpContext } from '@adonisjs/core/http'
 import ChatRoomService from '#services/chat_room_service'
-import { createChatRoomValidator } from '#validators/chat_room'
+import { createChatRoomValidator, invitationResponseValidator } from '#validators/chat_room'
 import { inject } from '@adonisjs/core'
 
 @inject()
@@ -25,6 +25,14 @@ export default class ChatRoomsController {
   async getInvitations(context: HttpContext) {
     const user = context.auth.getUserOrFail()
     return context.response.json(await user.getChatRoomInvitationsJson())
+  }
+
+  async invitationResponse(context: HttpContext) {
+    const user = context.auth.getUserOrFail()
+    const payload = await context.request.validateUsing(invitationResponseValidator)
+    const invitationId: number = context.request.param('invitationId')
+    await this.chatRoomService.responseToInvitation(user, invitationId, payload)
+    return context.response.json(null)
   }
 
   async getChatRooms(context: HttpContext) {

@@ -25,4 +25,7 @@ router
   .post('/api/chatRoom/:chatId/invite/:invitedUserId', [ChatRoomsController, 'invite'])
   .use([middleware.auth()])
 router.get('/api/chatRoom/invite', [ChatRoomsController, 'getInvitations']).use([middleware.auth()])
+router
+  .patch('/api/chatRoom/invite/:invitationId', [ChatRoomsController, 'invitationResponse'])
+  .use([middleware.auth()])
 router.get('/api/chatRoom', [ChatRoomsController, 'getChatRooms']).use([middleware.auth()])
