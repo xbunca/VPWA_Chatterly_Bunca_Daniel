@@ -35,4 +35,13 @@ export default class ChatRoomInvitation extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  async getJson() {
+    return {
+      id: this.id,
+      name: this.chatRoom.name,
+      private: this.chatRoom.private,
+      from: this.inviter.nickname,
+    }
+  }
 }

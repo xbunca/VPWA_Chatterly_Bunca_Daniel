@@ -8,6 +8,7 @@ import State from '#models/state'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import ChatRoomInvitation from '#models/chat_room_invitation'
 import ChatRoom from '#models/chat_room'
+import ChatRoomMembership from '#models/chat_room_membership'
 
 const AuthFinder = withAuthFinder(() => hash.use('scrypt'), {
   uids: ['email_address', 'nickname'],
@@ -44,13 +45,23 @@ export default class User extends compose(BaseModel, AuthFinder) {
   })
   declare state: BelongsTo<typeof State>
 
-  @hasMany(() => ChatRoomInvitation)
+  @hasMany(() => ChatRoomInvitation, {
+    foreignKey: 'userId',
+    onQuery: (query) => {
+      query.whereNull('accepted')
+    },
+  })
   declare chatRoomInvitations: HasMany<typeof ChatRoomInvitation>
 
   @hasMany(() => ChatRoom, {
     foreignKey: 'ownerId',
   })
   declare ownedChatRooms: HasMany<typeof ChatRoom>
+
+  @hasMany(() => ChatRoomMembership, {
+    foreignKey: 'userId',
+  })
+  declare chatRoomMemberships: HasMany<typeof ChatRoomMembership>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -70,11 +81,27 @@ export default class User extends compose(BaseModel, AuthFinder) {
     }
   }
 
+  async getChatRoomInvitationsJson() {
+    await this.load('chatRoomInvitations')
+    const invitations = []
+    for (const chatRoomInvitation of this.chatRoomInvitations) {
+      await chatRoomInvitation.load('inviter')
+      await chatRoomInvitation.load('chatRoom')
+      invitations.push(await chatRoomInvitation.getJson())
+    }
+    return invitations
+  }
+
   async getChatRoomsJson() {
     await this.load('ownedChatRooms')
+    await this.load('chatRoomMemberships')
     const chatRooms = []
     for (const ownedChatRoom of this.ownedChatRooms) {
-      chatRooms.push(await ownedChatRoom.getJson())
+      chatRooms.push(await ownedChatRoom.getJson(this))
+    }
+    for (const chatRoomMembership of this.chatRoomMemberships) {
+      await chatRoomMembership.load('chatRoom')
+      chatRooms.push(await chatRoomMembership.chatRoom.getJson(this))
     }
     return chatRooms
   }
