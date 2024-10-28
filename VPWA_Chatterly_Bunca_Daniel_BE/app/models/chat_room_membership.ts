@@ -18,7 +18,7 @@ export default class ChatRoomMembership extends BaseModel {
   declare chatRoomId: number
 
   @column()
-  declare inviteId: number
+  declare inviteId: number | null
 
   @belongsTo(() => User, {
     foreignKey: 'userId',

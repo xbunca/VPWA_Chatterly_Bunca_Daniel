@@ -35,6 +35,13 @@ export default class ChatRoomsController {
     return context.response.json(null)
   }
 
+  async join(context: HttpContext) {
+    const user = context.auth.getUserOrFail()
+    const chatRoomName: string = decodeURIComponent(context.request.param('chatRoomName'))
+    await this.chatRoomService.joinChatRoom(user, chatRoomName)
+    return context.response.json(null)
+  }
+
   async getChatRooms(context: HttpContext) {
     const user = context.auth.getUserOrFail()
     return context.response.json(await user.getChatRoomsJson())

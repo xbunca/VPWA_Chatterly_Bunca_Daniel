@@ -34,25 +34,19 @@ export default class ChatRoomService {
     }
 
     await chatRoom.load('chatRoomMemberships')
-    const chatRoomUserIds: number[] = []
     for (const chatRoomMembership of chatRoom.chatRoomMemberships) {
-      chatRoomUserIds.push(chatRoomMembership.userId)
-    }
-
-    if (chatRoomUserIds.includes(invitedUser.id)) {
-      // TODO: throw exception
-      return
+      if (chatRoomMembership.userId === invitedUser.id) {
+        // TODO: throw exception
+        return
+      }
     }
 
     await invitedUser.load('chatRoomInvitations')
-    const invitedUserChatRoomInvitationIds: number[] = []
     for (const invitedUserChatRoomInvitation of invitedUser.chatRoomInvitations) {
-      invitedUserChatRoomInvitationIds.push(invitedUserChatRoomInvitation.chatRoomId)
-    }
-
-    if (invitedUserChatRoomInvitationIds.includes(chatRoom.id)) {
-      // TODO: throw exception
-      return
+      if (invitedUserChatRoomInvitation.chatRoomId === chatRoom.id) {
+        // TODO: throw exception
+        return
+      }
     }
 
     await ChatRoomInvitation.create({
@@ -86,5 +80,43 @@ export default class ChatRoomService {
         inviteId: invitation.id,
       })
     }
+  }
+
+  async joinChatRoom(user: User, chatRoomName: string) {
+    const chatRoom = await ChatRoom.findByOrFail('name', chatRoomName)
+
+    if (chatRoom.ownerId === user.id) {
+      // TODO: throw exception
+      return
+    }
+
+    if (chatRoom.private) {
+      // TODO: throw exception
+      return
+    }
+
+    await user.load('chatRoomInvitations')
+    for (const chatRoomInvitation of user.chatRoomInvitations) {
+      if (chatRoomInvitation.chatRoomId === chatRoom.id) {
+        const payload = {
+          accept: true,
+        }
+        await this.responseToInvitation(user, chatRoomInvitation.id, payload)
+        return
+      }
+    }
+
+    await user.load('chatRoomMemberships')
+    for (const chatRoomMembership of user.chatRoomMemberships) {
+      if (chatRoomMembership.chatRoomId === chatRoom.id) {
+        // TODO: throw exception
+        return
+      }
+    }
+
+    await ChatRoomMembership.create({
+      userId: user.id,
+      chatRoomId: chatRoom.id,
+    })
   }
 }
