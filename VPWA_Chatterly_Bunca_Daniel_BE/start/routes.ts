@@ -30,3 +30,6 @@ router
   .use([middleware.auth()])
 router.post('/api/chatRoom/:chatRoomName', [ChatRoomsController, 'join']).use([middleware.auth()])
 router.get('/api/chatRoom', [ChatRoomsController, 'getChatRooms']).use([middleware.auth()])
+router
+  .delete('/api/chatRoom/:chatRoomId/leave', [ChatRoomsController, 'leave'])
+  .use([middleware.auth()])

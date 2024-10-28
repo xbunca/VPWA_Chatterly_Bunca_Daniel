@@ -119,4 +119,20 @@ export default class ChatRoomService {
       chatRoomId: chatRoom.id,
     })
   }
+
+  async leaveChatRoom(user: User, chatRoomId: number) {
+    const chatRoom = await ChatRoom.findOrFail(chatRoomId)
+
+    if (chatRoom.ownerId === user.id) {
+      await chatRoom.delete()
+      return
+    }
+
+    const chatRoomMembership = await ChatRoomMembership.findByOrFail({
+      userId: user.id,
+      chatRoomId: chatRoomId,
+    })
+
+    await chatRoomMembership.delete()
+  }
 }

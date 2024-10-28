@@ -46,4 +46,11 @@ export default class ChatRoomsController {
     const user = context.auth.getUserOrFail()
     return context.response.json(await user.getChatRoomsJson())
   }
+
+  async leave(context: HttpContext) {
+    const user = context.auth.getUserOrFail()
+    const chatRoomId: number = context.request.param('chatRoomId')
+    await this.chatRoomService.leaveChatRoom(user, chatRoomId)
+    return context.response.json(null)
+  }
 }

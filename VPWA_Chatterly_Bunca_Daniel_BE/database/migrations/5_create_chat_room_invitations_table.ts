@@ -7,7 +7,12 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary().notNullable()
       table.integer('inviter_id').notNullable().references('id').inTable('users')
-      table.integer('chat_room_id').notNullable().references('id').inTable('chat_rooms')
+      table
+        .integer('chat_room_id')
+        .notNullable()
+        .references('id')
+        .inTable('chat_rooms')
+        .onDelete('CASCADE')
       table.integer('user_id').notNullable().references('id').inTable('users')
       table.boolean('accepted').defaultTo(null)
 
