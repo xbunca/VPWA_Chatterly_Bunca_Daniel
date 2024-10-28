@@ -1,5 +1,15 @@
 <script setup lang="ts">
 
+import { useUserStore } from 'stores/userStore';
+import { useRouter } from 'vue-router';
+
+const userStore = useUserStore()
+const router = useRouter()
+
+if (userStore.accessToken !== null) {
+  router.replace({ name: 'home' })
+}
+
 </script>
 
 <template>

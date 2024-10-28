@@ -2,12 +2,10 @@
 import { ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
-import { useUserStore } from 'stores/userStore';
+import { register } from 'boot/api';
 
 const q = useQuasar()
 const router = useRouter()
-
-const userStore = useUserStore()
 
 const nameField = ref('')
 const surnameField = ref('')
@@ -15,7 +13,7 @@ const nicknameField = ref('')
 const emailField = ref('')
 const passwordField = ref('')
 
-const createAccountTapped = () => {
+const createAccountTapped = async () => {
 
   const name = nameField.value
   const surname = surnameField.value
@@ -83,17 +81,19 @@ const createAccountTapped = () => {
     return
   }
 
-  userStore.user = {
-    id: 1,
-    name: name,
-    surname: surname,
-    nickname: nickname,
-    email: email,
-    status: 1,
-    notifyMentionsOnly: false
+  try {
+    await register(name, surname, nickname, email, password)
+    await router.push({ name: 'home' })
+  } catch (error) {
+    q.notify({
+      type: 'negative',
+      icon: 'warning',
+      message: error instanceof Error ? error.message : 'Something went wrong',
+      color: 'red-5',
+      position: 'center',
+      timeout: 500
+    })
   }
-
-  router.push({ name: 'home' })
 
 }
 

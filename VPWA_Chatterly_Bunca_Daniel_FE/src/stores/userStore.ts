@@ -3,6 +3,7 @@ import { User } from 'components/models';
 
 interface UserState {
   user: User;
+  accessToken: string | null;
 }
 
 export const useUserStore = defineStore('user',{
@@ -15,6 +16,7 @@ export const useUserStore = defineStore('user',{
       email: 'my@email.com',
       status: 1,
       notifyMentionsOnly: false
-    }
+    },
+    accessToken: localStorage.getItem('accessToken'),
   })
 })

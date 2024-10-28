@@ -12,6 +12,11 @@ import ChanelUserListItem from 'components/ChanelUserListItem.vue';
 const router = useRouter();
 
 const userStore = useUserStore();
+
+if (userStore.accessToken === null) {
+  router.replace({ name: 'login' })
+}
+
 const chatsStore = useChatsStore();
 
 const statuses: Status[] = [

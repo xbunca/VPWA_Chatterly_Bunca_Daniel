@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
+import { login } from 'boot/api';
 
 const q = useQuasar()
 const router = useRouter()
@@ -9,7 +10,7 @@ const router = useRouter()
 const emailField = ref('')
 const passwordField = ref('')
 
-const logInTapped = () => {
+const logInTapped = async () => {
 
   const email = emailField.value
   const password = passwordField.value
@@ -38,7 +39,19 @@ const logInTapped = () => {
     return
   }
 
-  router.push({ name: 'home' })
+  try {
+    await login(email, password)
+    await router.push({ name: 'home' })
+  } catch (error) {
+    q.notify({
+      type: 'negative',
+      icon: 'warning',
+      message: error instanceof Error ? error.message : 'Something went wrong',
+      color: 'red-5',
+      position: 'center',
+      timeout: 500
+    })
+  }
 
 }
 
