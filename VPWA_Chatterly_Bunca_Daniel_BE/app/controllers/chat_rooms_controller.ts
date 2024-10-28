@@ -17,8 +17,10 @@ export default class ChatRoomsController {
   async invite(context: HttpContext) {
     const inviter = context.auth.getUserOrFail()
     const chatId: number = context.request.param('chatId')
-    const invitedUserId: number = context.request.param('invitedUserId')
-    await this.chatRoomService.inviteUser(inviter, chatId, invitedUserId)
+    const invitedUserNickname: string = decodeURIComponent(
+      context.request.param('invitedUserNickname')
+    )
+    await this.chatRoomService.inviteUser(inviter, chatId, invitedUserNickname)
     return context.response.json(null)
   }
 

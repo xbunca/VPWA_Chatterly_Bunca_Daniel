@@ -22,7 +22,7 @@ router.patch('/api/account', [UsersController, 'updateAccount']).use([middleware
 
 router.post('/api/chatRoom', [ChatRoomsController, 'create']).use([middleware.auth()])
 router
-  .post('/api/chatRoom/:chatId/invite/:invitedUserId', [ChatRoomsController, 'invite'])
+  .post('/api/chatRoom/:chatId/invite/:invitedUserNickname', [ChatRoomsController, 'invite'])
   .use([middleware.auth()])
 router.get('/api/chatRoom/invite', [ChatRoomsController, 'getInvitations']).use([middleware.auth()])
 router

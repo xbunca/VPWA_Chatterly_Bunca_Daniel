@@ -12,9 +12,9 @@ export default class ChatRoomService {
     })
   }
 
-  async inviteUser(inviter: User, chatRoomId: number, invitedUserId: number) {
+  async inviteUser(inviter: User, chatRoomId: number, invitedUserNickname: string) {
     const chatRoom = await ChatRoom.findOrFail(chatRoomId)
-    const invitedUser = await User.findOrFail(invitedUserId)
+    const invitedUser = await User.findByOrFail('nickname', invitedUserNickname)
 
     if (inviter.id === invitedUser.id) {
       // TODO: throw exception
