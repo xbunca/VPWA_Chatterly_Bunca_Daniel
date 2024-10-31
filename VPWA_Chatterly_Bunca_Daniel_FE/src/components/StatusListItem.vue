@@ -2,13 +2,15 @@
 
 import { UserState } from 'components/models';
 import { useUserStore } from 'stores/userStore';
+import { updateUserState } from 'boot/api';
 
 const props = withDefaults(defineProps<UserState>(), {});
 
 const userStore = useUserStore();
 
-function onUserStateClicked() {
-  userStore.user.stateId = props.id;
+async function onUserStateClicked() {
+  const account = await updateUserState(props.id)
+  userStore.user.stateId = account.stateId;
 }
 
 </script>

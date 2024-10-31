@@ -120,6 +120,36 @@ export async function getAccountDetail() : Promise<AccountResponse> {
   }
 }
 
+export async function updateUserState(stateId: number) : Promise<AccountResponse> {
+  const body = {
+    stateId: stateId,
+  }
+
+  try {
+    return await fetchApi('account', true, {
+      method: 'PATCH',
+      body: body,
+    }) as AccountResponse
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : '-1')
+  }
+}
+
+export async function updateNotifyMentionsOnly(notifyMentionsOnly: boolean) : Promise<AccountResponse> {
+  const body = {
+    notifyMentionsOnly: notifyMentionsOnly,
+  }
+
+  try {
+    return await fetchApi('account', true, {
+      method: 'PATCH',
+      body: body,
+    }) as AccountResponse
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : '-1')
+  }
+}
+
 export async function createChatRoom(name: string, isPrivate: boolean): Promise<ChatRoom> {
   const body = {
     name: name,

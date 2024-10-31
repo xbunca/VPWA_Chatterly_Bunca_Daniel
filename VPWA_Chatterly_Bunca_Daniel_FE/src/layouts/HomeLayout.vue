@@ -8,7 +8,13 @@ import { useUserStore } from 'stores/userStore';
 import { UserState } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
 import ChanelUserListItem from 'components/ChanelUserListItem.vue';
-import { getAccountDetail, getChatRoomInvitations, getChatRooms, inviteToChatRoom } from 'boot/api';
+import {
+  getAccountDetail,
+  getChatRoomInvitations,
+  getChatRooms,
+  inviteToChatRoom,
+  updateNotifyMentionsOnly
+} from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
 
 const router = useRouter();
@@ -59,6 +65,14 @@ watch(
   () => userStore.user.stateId,
   (newStateId) => {
     selectedUserState.value = settingsStore.userStates.find(s => s.id === newStateId)!;
+  }
+)
+
+watch(
+  () => userStore.user.notifyMentionsOnly,
+  async (newValue) => {
+    const account = await updateNotifyMentionsOnly(newValue);
+    userStore.user.notifyMentionsOnly = account.notifyMentionsOnly
   }
 )
 
