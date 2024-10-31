@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { onBeforeMount, onBeforeUnmount, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import StatusListItem from 'components/StatusListItem.vue';
 import ChatRoomInvitationListItem from 'components/ChatRoomInvitationListItem.vue';
@@ -9,16 +9,18 @@ import { UserState } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
 import ChanelUserListItem from 'components/ChanelUserListItem.vue';
 import { getAccountDetail } from 'boot/api';
+import { useSettingsStore } from 'stores/settingsStore';
 
 const router = useRouter();
 
 const userStore = useUserStore();
+const settingsStore = useSettingsStore()
 
 if (userStore.accessToken === null) {
   router.replace({ name: 'login' })
 }
 
-onMounted(async () => {
+onBeforeMount(async () => {
   try {
     const accountDetail = await getAccountDetail()
     userStore.user = {
@@ -29,36 +31,18 @@ onMounted(async () => {
       stateId: accountDetail.stateId,
     }
   } catch (e) {
-    console.log(e)
+
   }
 })
 
 const chatsStore = useChatsStore();
 
-const userStates: UserState[] = [
-  {
-    id: 1,
-    color: 'grey',
-    name: 'Offline',
-  },
-  {
-    id: 2,
-    color: 'green',
-    name: 'Online',
-  },
-  {
-    id: 3,
-    color: 'red',
-    name: 'Do not disturb',
-  },
-];
-
-const selectedUserState = ref<UserState>(userStates.find(s => s.id === userStore.user.stateId)!);
+const selectedUserState = ref<UserState>(settingsStore.userStates.find(s => s.id === userStore.user.stateId)!);
 
 watch(
   () => userStore.user.stateId,
   (newStateId) => {
-    selectedUserState.value = userStates.find(s => s.id === newStateId)!;
+    selectedUserState.value = settingsStore.userStates.find(s => s.id === newStateId)!;
   }
 )
 
@@ -209,7 +193,7 @@ const joinOrCreateChannel = (channelName: string) => {
         >
           <q-list>
             <StatusListItem
-              v-for="userState in userStates"
+              v-for="userState in settingsStore.userStates"
               :key="userState.id"
               v-bind="userState"
             />
