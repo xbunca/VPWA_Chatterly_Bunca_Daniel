@@ -67,7 +67,6 @@ export async function login(username: string, password: string) {
     localStorage.setItem('accessToken', accessToken)
     userStore.accessToken = accessToken
   } catch (error) {
-    console.log(error)
     let message = 'Something went wrong'
     switch (error instanceof Error ? error.message : '-1') {
       case '401':
@@ -110,7 +109,7 @@ interface AccountResponse {
   notifyMentionsOnly: boolean;
   stateId: number;
 }
-export async function accountDetail() : Promise<AccountResponse> {
+export async function getAccountDetail() : Promise<AccountResponse> {
   try {
     return await fetchApi('account', true, {
       method: 'GET',

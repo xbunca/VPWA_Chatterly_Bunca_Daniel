@@ -80,7 +80,6 @@ function generateSenders(count: number): Sender[] {
     const name = firstNames[Math.floor(Math.random() * firstNames.length)]
     const surname = lastNames[Math.floor(Math.random() * lastNames.length)]
     senders.push({
-      id: Math.floor(Math.random() * (2000 - 500 + 1)) + 500,
       name: name,
       surname: surname,
       nickname: name.toLowerCase() + '.' + surname.toLowerCase()[0],
@@ -92,11 +91,10 @@ function generateSenders(count: number): Sender[] {
 
 export function generateMessages(chat: ChatRoom, user: User, count: number)  {
   const userSender: Sender = {
-    id: user.id,
     name: user.name,
     surname: user.surname,
     nickname: user.nickname,
-    status: user.status
+    status: user.stateId
   }
   for (let i = 0; i < count; i++) {
     const sender = Math.random() > 0.2 ? chat.users[Math.floor(Math.random() * chat.users.length)] : userSender
@@ -110,12 +108,10 @@ export function generateMessages(chat: ChatRoom, user: User, count: number)  {
 
 for (let i = 0; i < 3; i++) {
   const users = generateSenders(Math.floor(Math.random() * (10 - 2 + 1)) + 2);
-  const owner = users[Math.floor(Math.random() * users.length)];
 
   chatsStore.invitations.push({
     id: i,
     name: adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + nouns[Math.floor(Math.random() * nouns.length)],
-    ownerId: owner.id,
     isPrivate: Math.random() > 0.5,
     inviteFrom: 'nickname',
     users: users,
@@ -125,12 +121,10 @@ for (let i = 0; i < 3; i++) {
 
 for (let i = 3; i < 18; i++) {
   const users = generateSenders(Math.floor(Math.random() * (10 - 2 + 1)) + 2);
-  const owner = users[Math.floor(Math.random() * users.length)];
 
   chatsStore.chats.push({
     id: i,
     name: adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + nouns[Math.floor(Math.random() * nouns.length)],
-    ownerId: owner.id,
     isPrivate: Math.random() > 0.5,
     inviteFrom: Math.random() > 0.5 ? 'nickname' : null,
     users: users,

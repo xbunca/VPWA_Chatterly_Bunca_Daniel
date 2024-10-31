@@ -53,23 +53,6 @@ const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void
   }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500)
 }
 
-const isAdressed = (messageContent: string, senderId: number): boolean => {
-  if(senderId == userStore.user.id){
-    return false
-  }
-  const text = messageContent.split(' ')
-  const userName = userStore.user.nickname;
-
-  for (let index = 0; index < text.length; index++) {
-    const element = text[index];
-    if(element.includes('@' + userName)) {
-      return true
-    }
-
-  }
-  return false
-}
-
 onBeforeUnmount(() => {
   chatsStore.selectedChat = null
 })
@@ -133,13 +116,13 @@ onBeforeUnmount(() => {
         <div id="avatar-status-wrapper">
           <q-chat-message
           :avatar="'https://ui-avatars.com/api/?name=' + message.sender.name[0] + '+' + message.sender.surname[0]"
-          :name="message.sender.id == userStore.user.id ? '' : message.sender.name + ' ' + message.sender.surname"
+          :name="message.sender.name + ' ' + message.sender.surname"
           :text="[ message.content ]"
-          :bg-color="isAdressed(message.content, message.sender.id)? 'yellow-6' : ''"
-          :sent="message.sender.id == userStore.user.id"
+          :bg-color="false ? 'yellow-6' : ''"
+          :sent="false"
           />
           <q-avatar
-          v-if="message.sender.id != userStore.user.id"
+          v-if="true"
           id="statusAvatar"
           :color="message.sender.status == 0 ? 'grey' : message.sender.status == 1 ? 'green' : 'red'"
           size="2vh"

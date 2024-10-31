@@ -9,12 +9,10 @@ interface UserState {
 export const useUserStore = defineStore('user',{
   state: (): UserState => ({
     user: {
-      id: -1,
-      name: 'Name',
-      surname: 'Surname',
-      nickname: 'nickname',
-      email: 'my@email.com',
-      status: 1,
+      name: '--',
+      surname: '--',
+      nickname: '--',
+      stateId: 1,
       notifyMentionsOnly: false
     },
     accessToken: localStorage.getItem('accessToken'),

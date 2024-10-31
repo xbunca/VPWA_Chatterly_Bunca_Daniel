@@ -1,13 +1,20 @@
 <script setup lang="ts">
 
-import { Status } from 'components/models';
+import { UserState } from 'components/models';
+import { useUserStore } from 'stores/userStore';
 
-withDefaults(defineProps<Status>(), {});
+const props = withDefaults(defineProps<UserState>(), {});
+
+const userStore = useUserStore();
+
+function onUserStateClicked() {
+  userStore.user.stateId = props.id;
+}
 
 </script>
 
 <template>
-  <q-item clickable v-close-popup @click="onClickEvent">
+  <q-item clickable v-close-popup @click="onUserStateClicked">
     <q-item-section
       id="avatar-section"
       avatar>
@@ -19,7 +26,7 @@ withDefaults(defineProps<Status>(), {});
     </q-item-section>
     <q-item-section>
       <q-item-label>
-        {{ title }}
+        {{ name }}
       </q-item-label>
     </q-item-section>
   </q-item>

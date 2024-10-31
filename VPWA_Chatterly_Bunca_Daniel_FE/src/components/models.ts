@@ -1,21 +1,18 @@
 export interface User {
-  id: number;
   name: string;
   surname: string;
   nickname: string;
-  email: string;
-  status: number;
+  stateId: number;
   notifyMentionsOnly: boolean;
 }
 
-export interface Status {
-  color?: string;
-  title?: string;
-  onClickEvent?: () => void;
+export interface UserState {
+  id: number;
+  name: string;
+  color: string;
 }
 
 export interface Sender {
-  id: number;
   name: string;
   surname: string;
   nickname: string;
@@ -31,7 +28,6 @@ export interface Message {
 export interface ChatRoom {
   id: number;
   name: string;
-  ownerId: number;
   isPrivate: boolean;
   inviteFrom: string | null;
   users: Sender[];

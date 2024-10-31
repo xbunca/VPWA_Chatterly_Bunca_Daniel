@@ -1,13 +1,14 @@
 <script setup lang="ts">
-import { onBeforeMount, onBeforeUnmount, ref } from 'vue';
+import { onBeforeMount, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import StatusListItem from 'components/StatusListItem.vue';
 import ChatRoomInvitationListItem from 'components/ChatRoomInvitationListItem.vue';
 import ChatRoomListItem from 'components/ChatRoomListItem.vue';
 import { useUserStore } from 'stores/userStore';
-import { Status } from 'components/models';
+import { UserState } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
 import ChanelUserListItem from 'components/ChanelUserListItem.vue';
+import { getAccountDetail } from 'boot/api';
 
 const router = useRouter();
 
@@ -17,36 +18,49 @@ if (userStore.accessToken === null) {
   router.replace({ name: 'login' })
 }
 
+onMounted(async () => {
+  try {
+    const accountDetail = await getAccountDetail()
+    userStore.user = {
+      name: accountDetail.name,
+      surname: accountDetail.surname,
+      nickname: accountDetail.nickname,
+      notifyMentionsOnly: accountDetail.notifyMentionsOnly,
+      stateId: accountDetail.stateId,
+    }
+  } catch (e) {
+    console.log(e)
+  }
+})
+
 const chatsStore = useChatsStore();
 
-const statuses: Status[] = [
+const userStates: UserState[] = [
   {
+    id: 1,
     color: 'grey',
-    title: 'Offline',
-    onClickEvent: () => {
-      userStore.user.status = 0;
-      selectedStatus.value = statuses[0];
-    },
+    name: 'Offline',
   },
   {
+    id: 2,
     color: 'green',
-    title: 'Online',
-    onClickEvent: () => {
-      userStore.user.status = 1;
-      selectedStatus.value = statuses[1];
-    },
+    name: 'Online',
   },
   {
+    id: 3,
     color: 'red',
-    title: 'Do not disturb',
-    onClickEvent: () => {
-      userStore.user.status = 2;
-      selectedStatus.value = statuses[2];
-    },
+    name: 'Do not disturb',
   },
 ];
 
-const selectedStatus = ref<Status>(statuses[userStore.user.status]);
+const selectedUserState = ref<UserState>(userStates.find(s => s.id === userStore.user.stateId)!);
+
+watch(
+  () => userStore.user.stateId,
+  (newStateId) => {
+    selectedUserState.value = userStates.find(s => s.id === newStateId)!;
+  }
+)
 
 const logOut = () => {
   router.push({ name: 'login' });
@@ -92,25 +106,23 @@ const onSend = () => {
         break;
       case '/invite':
         if (
-          chatIsSelected &&
-          chatsStore.selectedChat?.ownerId == userStore.user.id
+          chatIsSelected
         ) {
           //const userName = message.split(' ')[1];
         }
         break;
       case '/quit':
         if (
-          chatIsSelected &&
-          chatsStore.selectedChat?.ownerId == userStore.user.id
+          chatIsSelected
         ) {
-          quitChat(chatsStore.selectedChat.id);
+
         } else {
           console.log('You are not the owner of this chat.');
         }
         break;
       case '/cancel':
         if (chatIsSelected && chatsStore.selectedChat) {
-          quitChat(chatsStore.selectedChat.id); //pri normalnej verzii to bude fungovat inak
+
         }
     }
   } else {
@@ -119,11 +131,10 @@ const onSend = () => {
         id: 1,
         content: message,
         sender: {
-          id: userStore.user.id,
           name: userStore.user.name,
           surname: userStore.user.surname,
           nickname: userStore.user.nickname,
-          status: userStore.user.status,
+          status: userStore.user.stateId,
         },
       });
     }
@@ -151,7 +162,6 @@ const joinOrCreateChannel = (channelName: string) => {
     const newChatRoom = {
       id: chatsStore.chats.length + 1,
       name: channelName,
-      ownerId: userStore.user.id,
       isPrivate: false,
       inviteFrom: null,
       users: [],
@@ -164,18 +174,6 @@ const joinOrCreateChannel = (channelName: string) => {
 
   chatsStore.selectedChat = existingChannel;
   router.push({ name: 'chat', params: { id: existingChannel.id } });
-};
-
-const quitChat = (chatId: number) => {
-  const chatIndex = chatsStore.chats.findIndex((chat) => chat.id === chatId);
-
-  if (chatIndex !== -1) {
-    chatsStore.chats.splice(chatIndex, 1);
-    chatsStore.selectedChat = null;
-    console.log(`Chat with ID ${chatId} has been deleted.`);
-  } else {
-    console.log('Chat not found.');
-  }
 };
 </script>
 
@@ -202,8 +200,8 @@ const quitChat = (chatId: number) => {
         />
         <q-btn-dropdown
           id="statusButton"
-          :color="selectedStatus.color"
-          :text-color="selectedStatus.color"
+          :color="selectedUserState.color"
+          :text-color="selectedUserState.color"
           size="xs"
           dropdown-icon=""
           round
@@ -211,9 +209,9 @@ const quitChat = (chatId: number) => {
         >
           <q-list>
             <StatusListItem
-              v-for="status in statuses"
-              :key="status.title"
-              v-bind="status"
+              v-for="userState in userStates"
+              :key="userState.id"
+              v-bind="userState"
             />
           </q-list>
         </q-btn-dropdown>
