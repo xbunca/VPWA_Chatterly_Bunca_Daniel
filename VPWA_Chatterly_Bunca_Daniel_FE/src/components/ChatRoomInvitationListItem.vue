@@ -2,29 +2,34 @@
 
 import { ChatRoomInvitation } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
+import { respondToChatRoomInvitation } from 'boot/api';
 
 const chatsStore = useChatsStore()
 
 const props = withDefaults(defineProps<ChatRoomInvitation>(), {});
 
-const acceptClicked = () => {
-  const invitationIndex = chatsStore.invitations.findIndex(chatInvitation => chatInvitation.id === props.id);
-  const invitation = chatsStore.invitations[invitationIndex];
-  chatsStore.invitations.splice(invitationIndex, 1);
-  chatsStore.chatRooms.push({
-    id: chatsStore.chatRooms.length + 1,
-    name: invitation.name,
-    private: invitation.private,
-    isOwner: false,
-    inviteFrom: invitation.inviteFrom,
-    users: [],
-    messages: [],
-  })
+const acceptClicked = async () => {
+
+  try {
+    await respondToChatRoomInvitation(props.id, true)
+    const invitationIndex = chatsStore.invitations.findIndex(chatInvitation => chatInvitation.id === props.id);
+    chatsStore.invitations.splice(invitationIndex, 1);
+  } catch (e) {
+
+  }
+
 }
 
-const rejectClicked = () => {
-  const invitationIndex = chatsStore.invitations.findIndex(chatInvitation => chatInvitation.id === props.id);
-  chatsStore.invitations.splice(invitationIndex, 1);
+const rejectClicked = async () => {
+
+  try {
+    await respondToChatRoomInvitation(props.id, false)
+    const invitationIndex = chatsStore.invitations.findIndex(chatInvitation => chatInvitation.id === props.id);
+    chatsStore.invitations.splice(invitationIndex, 1);
+  } catch (e) {
+
+  }
+
 }
 
 </script>

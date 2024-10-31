@@ -223,3 +223,28 @@ export async function getChatRoomInvitations(): Promise<ChatRoomInvitation[]> {
     throw new Error(error instanceof Error ? error.message : '-1')
   }
 }
+
+export async function inviteToChatRoom(chatId: number, nickname: string) {
+  try {
+    await fetchApi(`chatRoom/${ chatId }/invite/${ nickname }`, true, {
+      method: 'POST',
+    })
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : '-1')
+  }
+}
+
+export async function respondToChatRoomInvitation(invitationId: number, accept: boolean) {
+  const body = {
+    accept: accept,
+  }
+
+  try {
+    await fetchApi(`chatRoom/invite/${ invitationId }`, true, {
+      method: 'PATCH',
+      body: body,
+    })
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : '-1')
+  }
+}

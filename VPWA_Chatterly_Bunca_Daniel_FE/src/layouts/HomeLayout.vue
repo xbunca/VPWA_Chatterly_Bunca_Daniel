@@ -8,7 +8,7 @@ import { useUserStore } from 'stores/userStore';
 import { UserState } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
 import ChanelUserListItem from 'components/ChanelUserListItem.vue';
-import { getAccountDetail, getChatRoomInvitations, getChatRooms } from 'boot/api';
+import { getAccountDetail, getChatRoomInvitations, getChatRooms, inviteToChatRoom } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
 
 const router = useRouter();
@@ -85,7 +85,7 @@ const showChatRoomsListTapped = () => {
   chatsStore.chatListToggle = !chatsStore.chatListToggle;
 }
 
-const onSend = () => {
+const onSend = async () => {
   const message = messageField.value;
 
   if (message[0] == '/') {
@@ -108,7 +108,12 @@ const onSend = () => {
         if (
           chatIsSelected
         ) {
-          //const userName = message.split(' ')[1];
+          const userName = message.split(' ')[1];
+          try {
+            await inviteToChatRoom(chatsStore.selectedChat!.id, userName);
+          } catch (e) {
+
+          }
         }
         break;
       case '/quit':
