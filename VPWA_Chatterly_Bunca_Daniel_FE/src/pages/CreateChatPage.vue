@@ -4,6 +4,7 @@ import { ref } from 'vue';
 import { useChatsStore } from 'stores/chatsStore';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import { createChatRoom, joinChatRoom } from 'boot/api';
 
 const q = useQuasar()
 const router = useRouter()
@@ -15,11 +16,32 @@ const joinChatField = ref('')
 const createChatField = ref('')
 const isPrivateRoom = ref(false)
 
-const joinTapped = () => {
+const joinTapped = async () => {
+  const chatRoomName = joinChatField.value
+
+  if (chatsStore.chatRooms.find(chat => chat.name === chatRoomName) !== undefined) {
+    q.notify({
+      type: 'negative',
+      icon: 'warning',
+      message: 'You are a member of a chat with this name already!',
+      color: 'red-5',
+      position: 'center',
+      timeout: 500
+    })
+    return
+  }
+
+  try {
+    const chatRoom = await joinChatRoom(chatRoomName)
+    chatsStore.chatRooms.push(chatRoom)
+    await router.push({ name: 'chat', params: { id: chatRoom.id } })
+  } catch (err) {
+
+  }
 
 }
 
-const createTapped = () => {
+const createTapped = async () => {
   const chatRoomName = createChatField.value
 
   if (chatsStore.chatRooms.find(chat => chat.name === chatRoomName) !== undefined) {
@@ -34,19 +56,14 @@ const createTapped = () => {
     return
   }
 
-  const chatId = chatsStore.chatRooms.length + 1
+  try {
+    const chatRoom = await createChatRoom(chatRoomName, isPrivateRoom.value)
+    chatsStore.chatRooms.push(chatRoom)
+    await router.push({ name: 'chat', params: { id: chatRoom.id } })
+  } catch (err) {
 
-  chatsStore.chatRooms.push({
-    id: chatId,
-    name: chatRoomName,
-    private: isPrivateRoom.value,
-    isOwner: true,
-    inviteFrom: null,
-    users: [],
-    messages: []
-  })
+  }
 
-  router.push( { name: 'chat', params: { id: chatId } } )
 }
 
 </script>

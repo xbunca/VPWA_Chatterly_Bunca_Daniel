@@ -120,13 +120,60 @@ export async function getAccountDetail() : Promise<AccountResponse> {
   }
 }
 
-export async function getChatRooms(): Promise<ChatRoom[]> {
-  interface ChatRoomListItemResponse {
-    id: number;
-    name: string;
-    private: boolean;
-    isOwner: boolean;
+export async function createChatRoom(name: string, isPrivate: boolean): Promise<ChatRoom> {
+  const body = {
+    name: name,
+    private: isPrivate,
   }
+
+  try {
+    const data = await fetchApi('chatRoom', true, {
+      method: 'POST',
+      body: body,
+    }) as ChatRoomListItemResponse
+
+    return {
+      id: data.id,
+      name: data.name,
+      private: data.private,
+      isOwner: data.isOwner,
+      inviteFrom: null,
+      users: [],
+      messages: [],
+    }
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : '-1')
+  }
+}
+
+export async function joinChatRoom(name: string): Promise<ChatRoom> {
+  try {
+    const data = await fetchApi(`chatRoom/${ name }`, true, {
+      method: 'POST',
+    }) as ChatRoomListItemResponse
+
+    return {
+      id: data.id,
+      name: data.name,
+      private: data.private,
+      isOwner: data.isOwner,
+      inviteFrom: null,
+      users: [],
+      messages: [],
+    }
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : '-1')
+  }
+}
+
+interface ChatRoomListItemResponse {
+  id: number;
+  name: string;
+  private: boolean;
+  isOwner: boolean;
+}
+
+export async function getChatRooms(): Promise<ChatRoom[]> {
 
   try {
     const data = await fetchApi('chatRoom', true, {
