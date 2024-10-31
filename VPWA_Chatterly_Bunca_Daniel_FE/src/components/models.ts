@@ -25,15 +25,19 @@ export interface Message {
   sender: Sender;
 }
 
+export interface ChatRoomInvitation {
+  id: number;
+  name: string;
+  private: boolean;
+  inviteFrom: string;
+}
+
 export interface ChatRoom {
   id: number;
   name: string;
-  isPrivate: boolean;
+  private: boolean;
+  isOwner: boolean;
   inviteFrom: string | null;
   users: Sender[];
   messages: Message[];
-}
-
-export interface ChatRoomInvitation extends ChatRoom {
-
 }

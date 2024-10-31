@@ -8,7 +8,7 @@ import { useUserStore } from 'stores/userStore';
 import { UserState } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
 import ChanelUserListItem from 'components/ChanelUserListItem.vue';
-import { getAccountDetail } from 'boot/api';
+import { getAccountDetail, getChatRooms } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
 
 const router = useRouter();
@@ -36,6 +36,14 @@ onBeforeMount(async () => {
 })
 
 const chatsStore = useChatsStore();
+
+onBeforeMount(async () => {
+  try {
+    chatsStore.chatRooms = await getChatRooms()
+  } catch (e) {
+
+  }
+})
 
 const selectedUserState = ref<UserState>(settingsStore.userStates.find(s => s.id === userStore.user.stateId)!);
 
@@ -138,21 +146,22 @@ const joinOrCreateChannel = (channelName: string) => {
     return;
   }
 
-  let existingChannel = chatsStore.chats.find(
+  let existingChannel = chatsStore.chatRooms.find(
     (chat) => chat.name === channelName
   );
 
   if (!existingChannel) {
     const newChatRoom = {
-      id: chatsStore.chats.length + 1,
+      id: chatsStore.chatRooms.length + 1,
       name: channelName,
-      isPrivate: false,
+      private: false,
+      isOwner: true,
       inviteFrom: null,
       users: [],
       messages: [],
     };
 
-    chatsStore.chats.push(newChatRoom);
+    chatsStore.chatRooms.push(newChatRoom);
     existingChannel = newChatRoom;
   }
 
@@ -272,8 +281,8 @@ const joinOrCreateChannel = (channelName: string) => {
             </p>
 
             <ChatRoomListItem
-              v-for="(chatRoom, index) in chatsStore.chats"
-              :key="index"
+              v-for="chatRoom in chatsStore.chatRooms"
+              :key="chatRoom.id"
               v-bind="chatRoom"
             />
           </q-list>

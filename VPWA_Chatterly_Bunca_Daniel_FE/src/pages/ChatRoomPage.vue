@@ -17,7 +17,7 @@ const loadSelectedChatRoom = (chatId: string | string[]) => {
 
   const id = Array.isArray(chatId) ? chatId[0] : chatId;
 
-  const chatRoom = chatsStore.chats.find(chat => chat.id.toString() === id);
+  const chatRoom = chatsStore.chatRooms.find(chat => chat.id.toString() === id);
 
   if (chatRoom != undefined) {
     chatsStore.selectedChat = chatRoom;
@@ -72,7 +72,7 @@ onBeforeUnmount(() => {
         size="20px"
         font-size="80%"
         text-color="black"
-        :icon="selectedChatRoom?.isPrivate ? 'lock' : 'language'"
+        :icon="selectedChatRoom?.private ? 'lock' : 'language'"
       />
     </div>
 

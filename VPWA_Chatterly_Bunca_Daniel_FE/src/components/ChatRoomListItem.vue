@@ -10,8 +10,8 @@ const chatsStore = useChatsStore()
 const props = withDefaults(defineProps<ChatRoom>(), {});
 
 const leaveRoomButtonClicked = () => {
-  const chatIndex = chatsStore.chats.findIndex(chat => chat.id === props.id)
-  chatsStore.chats.splice(chatIndex, 1)
+  const chatIndex = chatsStore.chatRooms.findIndex(chat => chat.id === props.id)
+  chatsStore.chatRooms.splice(chatIndex, 1)
   if (chatsStore.selectedChat?.id === props.id) {
     chatsStore.selectedChat = null
     router.push({ name: 'home' })
@@ -39,7 +39,7 @@ const onCellClicked = () => {
         size="20px"
         font-size="80%"
         text-color="black"
-        :icon="isPrivate ? 'lock' : 'language'"
+        :icon="private ? 'lock' : 'language'"
       />
     </div>
 

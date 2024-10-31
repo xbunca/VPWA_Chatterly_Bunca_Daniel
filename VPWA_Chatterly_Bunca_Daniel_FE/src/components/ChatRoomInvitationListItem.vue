@@ -11,7 +11,15 @@ const acceptClicked = () => {
   const invitationIndex = chatsStore.invitations.findIndex(chatInvitation => chatInvitation.id === props.id);
   const invitation = chatsStore.invitations[invitationIndex];
   chatsStore.invitations.splice(invitationIndex, 1);
-  chatsStore.chats.push(invitation)
+  chatsStore.chatRooms.push({
+    id: chatsStore.chatRooms.length + 1,
+    name: invitation.name,
+    private: invitation.private,
+    isOwner: false,
+    inviteFrom: invitation.inviteFrom,
+    users: [],
+    messages: [],
+  })
 }
 
 const rejectClicked = () => {
@@ -33,7 +41,7 @@ const rejectClicked = () => {
         size="20px"
         font-size="80%"
         text-color="black"
-        :icon="isPrivate ? 'lock' : 'language'"
+        :icon="private ? 'lock' : 'language'"
       />
     </div>
 

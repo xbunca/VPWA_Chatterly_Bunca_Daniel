@@ -4,7 +4,7 @@ import { ChatRoom, ChatRoomInvitation, Sender, User } from 'components/models';
 
 interface ChatsState {
   invitations: ChatRoomInvitation[];
-  chats: ChatRoom[];
+  chatRooms: ChatRoom[];
   chatListToggle: boolean;
   chanelUserList: boolean;
   selectedChat: ChatRoom | null;
@@ -13,36 +13,12 @@ interface ChatsState {
 export const useChatsStore = defineStore('chats',{
   state: (): ChatsState => ({
     invitations: [],
-    chats: [],
+    chatRooms: [],
     chatListToggle: false,
     chanelUserList: false,
     selectedChat: null
   })
 })
-
-const chatsStore = useChatsStore()
-
-const adjectives = [
-  'Nebula', 'Star', 'Cosmic', 'Galactic', 'Quantum', 'Astro', 'Pulsar', 'Photon', 'Nova', 'Quasar', 'Celestial', 'Stellar'
-];
-
-const nouns = [
-  'Whisper', 'Dust', 'Voyage', 'Pulse', 'Echo', 'Flare', 'Wave', 'Comms', 'Currents', 'Beam', 'Lounge', 'Chatter'
-];
-
-const firstNames: string[] = [
-  'John', 'Jane', 'Alice', 'Bob', 'Emily',
-  'Michael', 'Sarah', 'David', 'Emma', 'Chris',
-  'Olivia', 'James', 'Sophia', 'Liam', 'Isabella',
-  'William', 'Ava', 'Ethan', 'Mia', 'Alexander'
-];
-
-const lastNames: string[] = [
-  'Doe', 'Smith', 'Johnson', 'Brown', 'Davis',
-  'Miller', 'Wilson', 'Moore', 'Taylor', 'Anderson',
-  'Thomas', 'Jackson', 'White', 'Harris', 'Martin',
-  'Thompson', 'Garcia', 'Martinez', 'Robinson', 'Clark'
-];
 
 const messages: string[] = [
   // Short Messages
@@ -74,20 +50,20 @@ const messages: string[] = [
   'Thank you for joining our community! We’re excited to have you on board and hope you enjoy your experience.'
 ];
 
-function generateSenders(count: number): Sender[] {
-  const senders: Sender[] = []
-  for (let i = 0; i < count; i++) {
-    const name = firstNames[Math.floor(Math.random() * firstNames.length)]
-    const surname = lastNames[Math.floor(Math.random() * lastNames.length)]
-    senders.push({
-      name: name,
-      surname: surname,
-      nickname: name.toLowerCase() + '.' + surname.toLowerCase()[0],
-      status: Math.floor(Math.random() * 3)
-    })
-  }
-  return senders
-}
+// function generateSenders(count: number): Sender[] {
+//   const senders: Sender[] = []
+//   for (let i = 0; i < count; i++) {
+//     const name = firstNames[Math.floor(Math.random() * firstNames.length)]
+//     const surname = lastNames[Math.floor(Math.random() * lastNames.length)]
+//     senders.push({
+//       name: name,
+//       surname: surname,
+//       nickname: name.toLowerCase() + '.' + surname.toLowerCase()[0],
+//       status: Math.floor(Math.random() * 3)
+//     })
+//   }
+//   return senders
+// }
 
 export function generateMessages(chat: ChatRoom, user: User, count: number)  {
   const userSender: Sender = {
@@ -104,31 +80,5 @@ export function generateMessages(chat: ChatRoom, user: User, count: number)  {
       sender: sender
     })
   }
-}
-
-for (let i = 0; i < 3; i++) {
-  const users = generateSenders(Math.floor(Math.random() * (10 - 2 + 1)) + 2);
-
-  chatsStore.invitations.push({
-    id: i,
-    name: adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + nouns[Math.floor(Math.random() * nouns.length)],
-    isPrivate: Math.random() > 0.5,
-    inviteFrom: 'nickname',
-    users: users,
-    messages: []
-  });
-}
-
-for (let i = 3; i < 18; i++) {
-  const users = generateSenders(Math.floor(Math.random() * (10 - 2 + 1)) + 2);
-
-  chatsStore.chats.push({
-    id: i,
-    name: adjectives[Math.floor(Math.random() * adjectives.length)] + ' ' + nouns[Math.floor(Math.random() * nouns.length)],
-    isPrivate: Math.random() > 0.5,
-    inviteFrom: Math.random() > 0.5 ? 'nickname' : null,
-    users: users,
-    messages: []
-  });
 }
 

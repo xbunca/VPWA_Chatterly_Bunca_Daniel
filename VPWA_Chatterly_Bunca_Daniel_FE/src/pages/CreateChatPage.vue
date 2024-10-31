@@ -22,7 +22,7 @@ const joinTapped = () => {
 const createTapped = () => {
   const chatRoomName = createChatField.value
 
-  if (chatsStore.chats.find(chat => chat.name === chatRoomName) !== undefined) {
+  if (chatsStore.chatRooms.find(chat => chat.name === chatRoomName) !== undefined) {
     q.notify({
       type: 'negative',
       icon: 'warning',
@@ -34,12 +34,13 @@ const createTapped = () => {
     return
   }
 
-  const chatId = chatsStore.chats.length + 4
+  const chatId = chatsStore.chatRooms.length + 1
 
-  chatsStore.chats.push({
+  chatsStore.chatRooms.push({
     id: chatId,
     name: chatRoomName,
-    isPrivate: isPrivateRoom.value,
+    private: isPrivateRoom.value,
+    isOwner: true,
     inviteFrom: null,
     users: [],
     messages: []

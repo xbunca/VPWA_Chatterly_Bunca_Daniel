@@ -1,4 +1,5 @@
 import { useUserStore } from 'stores/userStore';
+import { ChatRoom } from 'components/models';
 
 const apiIp = 'http://localhost:3333/api/';
 
@@ -114,6 +115,36 @@ export async function getAccountDetail() : Promise<AccountResponse> {
     return await fetchApi('account', true, {
       method: 'GET',
     }) as AccountResponse
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : '-1')
+  }
+}
+
+export async function getChatRooms(): Promise<ChatRoom[]> {
+  interface ChatRoomListItemResponse {
+    id: number;
+    name: string;
+    private: boolean;
+    isOwner: boolean;
+  }
+
+  try {
+    const data = await fetchApi('chatRoom', true, {
+      method: 'GET',
+    }) as ChatRoomListItemResponse[]
+    const chatRooms: ChatRoom[] = []
+    for (const chatRoom of data) {
+      chatRooms.push({
+        id: chatRoom.id,
+        name: chatRoom.name,
+        private: chatRoom.private,
+        isOwner: chatRoom.isOwner,
+        inviteFrom: null,
+        users: [],
+        messages: [],
+      })
+    }
+    return chatRooms
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : '-1')
   }
