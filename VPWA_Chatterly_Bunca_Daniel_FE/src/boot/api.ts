@@ -1,5 +1,5 @@
 import { useUserStore } from 'stores/userStore';
-import { ChatRoom } from 'components/models';
+import { ChatRoom, ChatRoomInvitation } from 'components/models';
 
 const apiIp = 'http://localhost:3333/api/';
 
@@ -145,6 +145,33 @@ export async function getChatRooms(): Promise<ChatRoom[]> {
       })
     }
     return chatRooms
+  } catch (error) {
+    throw new Error(error instanceof Error ? error.message : '-1')
+  }
+}
+
+export async function getChatRoomInvitations(): Promise<ChatRoomInvitation[]> {
+  interface ChatRoomInvitationListItemResponse {
+    id: number;
+    name: string;
+    private: boolean;
+    from: string;
+  }
+
+  try {
+    const data = await fetchApi('chatRoom/invite', true, {
+      method: 'GET',
+    }) as ChatRoomInvitationListItemResponse[]
+    const chatRoomInvitations: ChatRoomInvitation[] = []
+    for (const invitation of data) {
+      chatRoomInvitations.push({
+        id: invitation.id,
+        name: invitation.name,
+        private: invitation.private,
+        inviteFrom: invitation.from,
+      })
+    }
+    return chatRoomInvitations
   } catch (error) {
     throw new Error(error instanceof Error ? error.message : '-1')
   }

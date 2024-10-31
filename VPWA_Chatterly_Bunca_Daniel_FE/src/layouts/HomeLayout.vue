@@ -8,7 +8,7 @@ import { useUserStore } from 'stores/userStore';
 import { UserState } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
 import ChanelUserListItem from 'components/ChanelUserListItem.vue';
-import { getAccountDetail, getChatRooms } from 'boot/api';
+import { getAccountDetail, getChatRoomInvitations, getChatRooms } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
 
 const router = useRouter();
@@ -40,6 +40,14 @@ const chatsStore = useChatsStore();
 onBeforeMount(async () => {
   try {
     chatsStore.chatRooms = await getChatRooms()
+  } catch (e) {
+
+  }
+})
+
+onBeforeMount(async () => {
+  try {
+    chatsStore.invitations = await getChatRoomInvitations()
   } catch (e) {
 
   }
