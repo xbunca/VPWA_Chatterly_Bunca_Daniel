@@ -110,7 +110,10 @@ export default class ChatRoomService {
     try {
       chatRoom = await ChatRoom.findByOrFail('name', chatRoomName)
     } catch (e) {
-      throw new HttpException(404, 'Chat not found')
+      return await this.createChatRoom(user, {
+        name: chatRoomName,
+        private: false,
+      })
     }
 
     if (chatRoom.ownerId === user.id) {

@@ -5,14 +5,15 @@ import StatusListItem from 'components/StatusListItem.vue';
 import ChatRoomInvitationListItem from 'components/ChatRoomInvitationListItem.vue';
 import ChatRoomListItem from 'components/ChatRoomListItem.vue';
 import { useUserStore } from 'stores/userStore';
-import { UserState } from 'components/models';
+import { ChatRoom, UserState } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
 import ChanelUserListItem from 'components/ChanelUserListItem.vue';
 import {
+  createChatRoom,
   getAccountDetail,
   getChatRoomInvitations,
   getChatRooms,
-  inviteToChatRoom,
+  inviteToChatRoom, joinChatRoom,
   updateNotifyMentionsOnly
 } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
@@ -116,9 +117,37 @@ const onSend = async () => {
         }
         break;
       case '/join':
-        const parts = message.split(' ');
-        const channelName = parts.slice(1).join(' ');
-        joinOrCreateChannel(channelName);
+        const channelName = message.split(' ')[1];
+
+        let isPrivate = null
+
+        try {
+          isPrivate = message.split(' ')[2] === 'private'
+        } catch (e) {}
+
+        let chatRoom: ChatRoom
+
+        try {
+          if (isPrivate) {
+            chatRoom = await createChatRoom(channelName, true)
+          } else {
+            chatRoom = await joinChatRoom(channelName)
+          }
+          chatsStore.chatRooms.push(chatRoom)
+          await router.push({ name: 'chat', params: { id: chatRoom.id } })
+        } catch (error) {
+          if (error instanceof Error) {
+            q.notify({
+              type: 'negative',
+              icon: 'warning',
+              message: error.message,
+              color: 'red-5',
+              position: 'center',
+              timeout: 500
+            })
+          }
+        }
+
         break;
       case '/invite':
         if (
@@ -176,35 +205,6 @@ const onSend = async () => {
 const addChatTapped = () => {
   chatsStore.chatListToggle = false;
   router.push({ name: 'joinChat' });
-};
-
-const joinOrCreateChannel = (channelName: string) => {
-  if (!channelName) {
-    console.log('Please provide a channel name.');
-    return;
-  }
-
-  let existingChannel = chatsStore.chatRooms.find(
-    (chat) => chat.name === channelName
-  );
-
-  if (!existingChannel) {
-    const newChatRoom = {
-      id: chatsStore.chatRooms.length + 1,
-      name: channelName,
-      private: false,
-      isOwner: true,
-      inviteFrom: null,
-      users: [],
-      messages: [],
-    };
-
-    chatsStore.chatRooms.push(newChatRoom);
-    existingChannel = newChatRoom;
-  }
-
-  chatsStore.selectedChat = existingChannel;
-  router.push({ name: 'chat', params: { id: existingChannel.id } });
 };
 </script>
 
