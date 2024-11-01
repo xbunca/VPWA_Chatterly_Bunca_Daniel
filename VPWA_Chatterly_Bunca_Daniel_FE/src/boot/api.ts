@@ -116,6 +116,18 @@ export async function getAccountDetail() : Promise<AccountResponse> {
   }
 }
 
+export async function logoutUser()  {
+  try {
+    await fetchApi('auth/logout', true, {
+      method: 'POST',
+    })
+    localStorage.removeItem('accessToken');
+    userStore.accessToken = null;
+  } catch (error) {
+    throw error
+  }
+}
+
 export async function updateUserState(stateId: number) : Promise<AccountResponse> {
   const body = {
     stateId: stateId,

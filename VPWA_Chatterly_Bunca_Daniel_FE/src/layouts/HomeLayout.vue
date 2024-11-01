@@ -13,7 +13,7 @@ import {
   getAccountDetail,
   getChatRoomInvitations,
   getChatRooms,
-  inviteToChatRoom, joinChatRoom,
+  inviteToChatRoom, joinChatRoom, logoutUser,
   updateNotifyMentionsOnly
 } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
@@ -79,8 +79,22 @@ watch(
   }
 )
 
-const logOut = () => {
-  router.push({ name: 'login' });
+const logOut = async () => {
+  try {
+    await logoutUser()
+    await router.push({ name: 'login' });
+  } catch (error) {
+    if (error instanceof Error) {
+      q.notify({
+        type: 'negative',
+        icon: 'warning',
+        message: error.message,
+        color: 'red-5',
+        position: 'center',
+        timeout: 500
+      })
+    }
+  }
 };
 
 const messageField = ref('');

@@ -32,7 +32,7 @@ export default class UsersController {
     const user = context.auth.getUserOrFail()
     const token = user.currentAccessToken
     await User.accessTokens.delete(user, token.identifier)
-    return context.response.status(200)
+    return context.response.json({})
   }
 
   async getAccount(context: HttpContext) {
