@@ -22,7 +22,13 @@ export default class ChatRoomService {
       throw new HttpException(404, 'Chat not found')
     }
 
-    const invitedUser = await User.findByOrFail('nickname', invitedUserNickname)
+    let invitedUser: User
+
+    try {
+      invitedUser = await User.findByOrFail('nickname', invitedUserNickname)
+    } catch (e) {
+      throw new HttpException(404, 'User does not exist')
+    }
 
     if (inviter.id === invitedUser.id) {
       throw new HttpException(409, "You can't invite yourself")

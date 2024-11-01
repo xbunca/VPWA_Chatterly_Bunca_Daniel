@@ -11,6 +11,10 @@ interface FetchOptions {
   body?: Record<string, unknown> | null;
 }
 
+interface HttpError {
+  message: string;
+}
+
 async function fetchApi(apiFunction: string, authenticate: boolean, options: FetchOptions = {}): Promise<unknown> {
   const defaultHeaders: Record<string, string | null> = {
     'Content-Type': 'application/json',
@@ -40,11 +44,12 @@ async function fetchApi(apiFunction: string, authenticate: boolean, options: Fet
   try {
     const response = await fetch(`${apiIp}${apiFunction}`, config);
     if (!response.ok) {
-      throw new Error(`${response.status}`);
+      const httpError = await response.json() as HttpError;
+      throw new Error(httpError.message);
     }
     return await response.json();
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '-1');
+    throw error
   }
 }
 
@@ -68,16 +73,7 @@ export async function login(username: string, password: string) {
     localStorage.setItem('accessToken', accessToken)
     userStore.accessToken = accessToken
   } catch (error) {
-    let message = 'Something went wrong'
-    switch (error instanceof Error ? error.message : '-1') {
-      case '401':
-        message = 'Not authorized'
-        break
-      case '404':
-        message = 'Not found'
-        break
-    }
-    throw new Error(message)
+    throw error
   }
 }
 
@@ -99,7 +95,7 @@ export async function register(name: string, surname: string, nickname: string, 
     localStorage.setItem('accessToken', accessToken)
     userStore.accessToken = accessToken
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '-1')
+    throw error
   }
 }
 
@@ -116,7 +112,7 @@ export async function getAccountDetail() : Promise<AccountResponse> {
       method: 'GET',
     }) as AccountResponse
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '-1')
+    throw error
   }
 }
 
@@ -131,7 +127,7 @@ export async function updateUserState(stateId: number) : Promise<AccountResponse
       body: body,
     }) as AccountResponse
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '-1')
+    throw error
   }
 }
 
@@ -146,7 +142,7 @@ export async function updateNotifyMentionsOnly(notifyMentionsOnly: boolean) : Pr
       body: body,
     }) as AccountResponse
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '-1')
+    throw error
   }
 }
 
@@ -172,7 +168,7 @@ export async function createChatRoom(name: string, isPrivate: boolean): Promise<
       messages: [],
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '-1')
+    throw error
   }
 }
 
@@ -192,7 +188,7 @@ export async function joinChatRoom(name: string): Promise<ChatRoom> {
       messages: [],
     }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '-1')
+    throw error
   }
 }
 
@@ -223,7 +219,7 @@ export async function getChatRooms(): Promise<ChatRoom[]> {
     }
     return chatRooms
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '-1')
+    throw error
   }
 }
 
@@ -250,7 +246,7 @@ export async function getChatRoomInvitations(): Promise<ChatRoomInvitation[]> {
     }
     return chatRoomInvitations
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '-1')
+    throw error
   }
 }
 
@@ -260,7 +256,7 @@ export async function inviteToChatRoom(chatId: number, nickname: string) {
       method: 'POST',
     })
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '-1')
+    throw error
   }
 }
 
@@ -270,11 +266,26 @@ export async function respondToChatRoomInvitation(invitationId: number, accept: 
   }
 
   try {
-    await fetchApi(`chatRoom/invite/${ invitationId }`, true, {
-      method: 'PATCH',
-      body: body,
-    })
+    try {
+      const data = await fetchApi(`chatRoom/invite/${ invitationId }`, true, {
+        method: 'PATCH',
+        body: body,
+      }) as ChatRoomListItemResponse
+
+      const chatRoom: ChatRoom = {
+        id: data.id,
+        name: data.name,
+        private: data.private,
+        isOwner: data.isOwner,
+        inviteFrom: null,
+        messages: [],
+        users: [],
+      }
+      return chatRoom
+    } catch (e) {
+      return null
+    }
   } catch (error) {
-    throw new Error(error instanceof Error ? error.message : '-1')
+    throw error
   }
 }

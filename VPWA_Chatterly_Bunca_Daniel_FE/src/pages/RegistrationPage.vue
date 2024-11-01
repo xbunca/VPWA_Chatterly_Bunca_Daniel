@@ -25,7 +25,7 @@ const createAccountTapped = async () => {
     q.notify({
       type: 'negative',
       icon: 'person',
-      message: 'Enter your name!',
+      message: 'Enter your name',
       color: 'red-5',
       position: 'center',
       timeout: 500
@@ -37,7 +37,7 @@ const createAccountTapped = async () => {
     q.notify({
       type: 'negative',
       icon: 'person',
-      message: 'Enter your surname!',
+      message: 'Enter your surname',
       color: 'red-5',
       position: 'center',
       timeout: 500
@@ -49,7 +49,7 @@ const createAccountTapped = async () => {
     q.notify({
       type: 'negative',
       icon: 'person',
-      message: 'Enter your nickname!',
+      message: 'Enter your nickname',
       color: 'red-5',
       position: 'center',
       timeout: 500
@@ -61,7 +61,7 @@ const createAccountTapped = async () => {
     q.notify({
       type: 'negative',
       icon: 'mail',
-      message: 'Enter your email address!',
+      message: 'Enter your email address',
       color: 'red-5',
       position: 'center',
       timeout: 500
@@ -73,7 +73,7 @@ const createAccountTapped = async () => {
     q.notify({
       type: 'negative',
       icon: 'lock',
-      message: 'Enter your password!',
+      message: 'Enter your password',
       color: 'red-5',
       position: 'center',
       timeout: 500
@@ -85,14 +85,16 @@ const createAccountTapped = async () => {
     await register(name, surname, nickname, email, password)
     await router.push({ name: 'home' })
   } catch (error) {
-    q.notify({
-      type: 'negative',
-      icon: 'warning',
-      message: error instanceof Error ? error.message : 'Something went wrong',
-      color: 'red-5',
-      position: 'center',
-      timeout: 500
-    })
+    if (error instanceof Error) {
+      q.notify({
+        type: 'negative',
+        icon: 'warning',
+        message: error.message,
+        color: 'red-5',
+        position: 'center',
+        timeout: 500
+      })
+    }
   }
 
 }

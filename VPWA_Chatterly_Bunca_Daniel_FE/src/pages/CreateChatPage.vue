@@ -19,24 +19,21 @@ const isPrivateRoom = ref(false)
 const joinTapped = async () => {
   const chatRoomName = joinChatField.value
 
-  if (chatsStore.chatRooms.find(chat => chat.name === chatRoomName) !== undefined) {
-    q.notify({
-      type: 'negative',
-      icon: 'warning',
-      message: 'You are a member of a chat with this name already!',
-      color: 'red-5',
-      position: 'center',
-      timeout: 500
-    })
-    return
-  }
-
   try {
     const chatRoom = await joinChatRoom(chatRoomName)
     chatsStore.chatRooms.push(chatRoom)
     await router.push({ name: 'chat', params: { id: chatRoom.id } })
-  } catch (err) {
-
+  } catch (error) {
+    if (error instanceof Error) {
+      q.notify({
+        type: 'negative',
+        icon: 'warning',
+        message: error.message,
+        color: 'red-5',
+        position: 'center',
+        timeout: 500
+      })
+    }
   }
 
 }
@@ -44,24 +41,21 @@ const joinTapped = async () => {
 const createTapped = async () => {
   const chatRoomName = createChatField.value
 
-  if (chatsStore.chatRooms.find(chat => chat.name === chatRoomName) !== undefined) {
-    q.notify({
-      type: 'negative',
-      icon: 'warning',
-      message: 'Chat with this name already exists!',
-      color: 'red-5',
-      position: 'center',
-      timeout: 500
-    })
-    return
-  }
-
   try {
     const chatRoom = await createChatRoom(chatRoomName, isPrivateRoom.value)
     chatsStore.chatRooms.push(chatRoom)
     await router.push({ name: 'chat', params: { id: chatRoom.id } })
-  } catch (err) {
-
+  } catch (error) {
+    if (error instanceof Error) {
+      q.notify({
+        type: 'negative',
+        icon: 'warning',
+        message: error.message,
+        color: 'red-5',
+        position: 'center',
+        timeout: 500
+      })
+    }
   }
 
 }

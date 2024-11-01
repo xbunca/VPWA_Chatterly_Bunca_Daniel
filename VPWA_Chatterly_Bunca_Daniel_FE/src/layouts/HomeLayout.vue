@@ -16,8 +16,10 @@ import {
   updateNotifyMentionsOnly
 } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
+import { useQuasar } from 'quasar';
 
 const router = useRouter();
+const q = useQuasar()
 
 const userStore = useUserStore();
 const settingsStore = useSettingsStore()
@@ -125,8 +127,17 @@ const onSend = async () => {
           const userName = message.split(' ')[1];
           try {
             await inviteToChatRoom(chatsStore.selectedChat!.id, userName);
-          } catch (e) {
-
+          } catch (error) {
+            if (error instanceof Error) {
+              q.notify({
+                type: 'negative',
+                icon: 'warning',
+                message: error.message,
+                color: 'red-5',
+                position: 'center',
+                timeout: 500
+              })
+            }
           }
         }
         break;

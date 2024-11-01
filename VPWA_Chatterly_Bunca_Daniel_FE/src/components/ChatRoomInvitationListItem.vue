@@ -3,19 +3,33 @@
 import { ChatRoomInvitation } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
 import { respondToChatRoomInvitation } from 'boot/api';
+import { useQuasar } from 'quasar';
 
 const chatsStore = useChatsStore()
+const q = useQuasar()
 
 const props = withDefaults(defineProps<ChatRoomInvitation>(), {});
 
 const acceptClicked = async () => {
 
   try {
-    await respondToChatRoomInvitation(props.id, true)
+    const chatRoom = await respondToChatRoomInvitation(props.id, true)
     const invitationIndex = chatsStore.invitations.findIndex(chatInvitation => chatInvitation.id === props.id);
     chatsStore.invitations.splice(invitationIndex, 1);
-  } catch (e) {
-
+    if (chatRoom !== null) {
+      chatsStore.chatRooms.push(chatRoom)
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      q.notify({
+        type: 'negative',
+        icon: 'warning',
+        message: error.message,
+        color: 'red-5',
+        position: 'center',
+        timeout: 500
+      })
+    }
   }
 
 }
@@ -26,8 +40,17 @@ const rejectClicked = async () => {
     await respondToChatRoomInvitation(props.id, false)
     const invitationIndex = chatsStore.invitations.findIndex(chatInvitation => chatInvitation.id === props.id);
     chatsStore.invitations.splice(invitationIndex, 1);
-  } catch (e) {
-
+  } catch (error) {
+    if (error instanceof Error) {
+      q.notify({
+        type: 'negative',
+        icon: 'warning',
+        message: error.message,
+        color: 'red-5',
+        position: 'center',
+        timeout: 500
+      })
+    }
   }
 
 }
