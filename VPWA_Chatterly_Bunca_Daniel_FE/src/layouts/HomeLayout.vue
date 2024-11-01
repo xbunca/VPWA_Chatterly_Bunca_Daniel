@@ -13,7 +13,7 @@ import {
   getAccountDetail,
   getChatRoomInvitations,
   getChatRooms,
-  inviteToChatRoom, joinChatRoom, logoutUser,
+  inviteToChatRoom, joinChatRoom, leaveChatRoom, logoutUser,
   updateNotifyMentionsOnly
 } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
@@ -189,14 +189,28 @@ const onSend = async () => {
           chatIsSelected
         ) {
 
-        } else {
-          console.log('You are not the owner of this chat.');
+          if (chatsStore.selectedChat!.isOwner) {
+            await leaveSelectedChat()
+          } else {
+            q.notify({
+              type: 'negative',
+              icon: 'warning',
+              message: 'You are not the owner',
+              color: 'red-5',
+              position: 'center',
+              timeout: 500
+            })
+          }
+
         }
         break;
       case '/cancel':
-        if (chatIsSelected && chatsStore.selectedChat) {
-
+        if (
+          chatIsSelected
+        ) {
+          await leaveSelectedChat()
         }
+        break
     }
   } else {
     if (chatsStore.selectedChat != null) {
@@ -215,6 +229,27 @@ const onSend = async () => {
 
   messageField.value = '';
 };
+
+async function leaveSelectedChat() {
+  try {
+    await leaveChatRoom(chatsStore.selectedChat!.id)
+    const chatIndex = chatsStore.chatRooms.findIndex(chat => chat.id === chatsStore.selectedChat!.id)
+    chatsStore.chatRooms.splice(chatIndex, 1)
+    chatsStore.selectedChat = null
+    await router.push({ name: 'home' })
+  } catch (error) {
+    if (error instanceof Error) {
+      q.notify({
+        type: 'negative',
+        icon: 'warning',
+        message: error.message,
+        color: 'red-5',
+        position: 'center',
+        timeout: 500
+      })
+    }
+  }
+}
 
 const addChatTapped = () => {
   chatsStore.chatListToggle = false;

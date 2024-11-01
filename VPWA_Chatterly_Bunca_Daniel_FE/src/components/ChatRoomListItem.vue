@@ -3,18 +3,35 @@
 import { ChatRoom } from 'components/models';
 import { useRouter } from 'vue-router';
 import { useChatsStore } from 'stores/chatsStore';
+import { leaveChatRoom } from 'boot/api';
+import { useQuasar } from 'quasar';
 
 const router = useRouter()
 const chatsStore = useChatsStore()
+const q = useQuasar()
 
 const props = withDefaults(defineProps<ChatRoom>(), {});
 
-const leaveRoomButtonClicked = () => {
-  const chatIndex = chatsStore.chatRooms.findIndex(chat => chat.id === props.id)
-  chatsStore.chatRooms.splice(chatIndex, 1)
-  if (chatsStore.selectedChat?.id === props.id) {
-    chatsStore.selectedChat = null
-    router.push({ name: 'home' })
+const leaveRoomButtonClicked = async () => {
+  try {
+    await leaveChatRoom(props.id)
+    const chatIndex = chatsStore.chatRooms.findIndex(chat => chat.id === props.id)
+    chatsStore.chatRooms.splice(chatIndex, 1)
+    if (chatsStore.selectedChat?.id === props.id) {
+      chatsStore.selectedChat = null
+      await router.push({ name: 'home' })
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      q.notify({
+        type: 'negative',
+        icon: 'warning',
+        message: error.message,
+        color: 'red-5',
+        position: 'center',
+        timeout: 500
+      })
+    }
   }
 }
 

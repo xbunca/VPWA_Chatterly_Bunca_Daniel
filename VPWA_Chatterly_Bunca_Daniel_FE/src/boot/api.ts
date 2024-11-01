@@ -301,3 +301,13 @@ export async function respondToChatRoomInvitation(invitationId: number, accept: 
     throw error
   }
 }
+
+export async function leaveChatRoom(chatId: number) {
+  try {
+    await fetchApi(`chatRoom/${ chatId }/leave`, true, {
+      method: 'DELETE',
+    })
+  } catch (error) {
+    throw error
+  }
+}
