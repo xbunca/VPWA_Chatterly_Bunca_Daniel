@@ -1,5 +1,6 @@
 import User from '#models/user'
 import State from '#models/state'
+import { HttpException } from '#exceptions/http_exception'
 
 export default class UserService {
   async createNewUser(payload: any): Promise<User> {
@@ -13,13 +14,17 @@ export default class UserService {
   }
 
   async updateUser(user: User, payload: any): Promise<User> {
-    if (
-      payload.stateId !== undefined &&
-      payload.stateId !== null &&
-      (await State.findOrFail(payload.stateId)) &&
-      user.stateId !== payload.stateId
-    ) {
-      user.stateId = payload.stateId
+    try {
+      if (
+        payload.stateId !== undefined &&
+        payload.stateId !== null &&
+        (await State.findOrFail(payload.stateId)) &&
+        user.stateId !== payload.stateId
+      ) {
+        user.stateId = payload.stateId
+      }
+    } catch (e) {
+      throw new HttpException(404, 'State not found')
     }
 
     if (

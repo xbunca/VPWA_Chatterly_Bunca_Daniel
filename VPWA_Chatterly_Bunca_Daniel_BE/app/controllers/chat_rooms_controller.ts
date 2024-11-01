@@ -21,7 +21,7 @@ export default class ChatRoomsController {
       context.request.param('invitedUserNickname')
     )
     await this.chatRoomService.inviteUser(inviter, chatId, invitedUserNickname)
-    return context.response.json(null)
+    return context.response.status(200)
   }
 
   async getInvitations(context: HttpContext) {
@@ -33,15 +33,20 @@ export default class ChatRoomsController {
     const user = context.auth.getUserOrFail()
     const payload = await context.request.validateUsing(invitationResponseValidator)
     const invitationId: number = context.request.param('invitationId')
-    await this.chatRoomService.responseToInvitation(user, invitationId, payload)
-    return context.response.json(null)
+    const chatRoom = await this.chatRoomService.responseToInvitation(user, invitationId, payload)
+
+    if (chatRoom !== null) {
+      return context.response.json(await chatRoom.getJson(user))
+    } else {
+      return context.response.status(200)
+    }
   }
 
   async join(context: HttpContext) {
     const user = context.auth.getUserOrFail()
     const chatRoomName: string = decodeURIComponent(context.request.param('chatRoomName'))
-    await this.chatRoomService.joinChatRoom(user, chatRoomName)
-    return context.response.json(null)
+    const chatRoom = await this.chatRoomService.joinChatRoom(user, chatRoomName)
+    return context.response.json(await chatRoom.getJson(user))
   }
 
   async getChatRooms(context: HttpContext) {
@@ -53,6 +58,6 @@ export default class ChatRoomsController {
     const user = context.auth.getUserOrFail()
     const chatRoomId: number = context.request.param('chatRoomId')
     await this.chatRoomService.leaveChatRoom(user, chatRoomId)
-    return context.response.json(null)
+    return context.response.status(200)
   }
 }

@@ -2,6 +2,7 @@ import ChatRoom from '#models/chat_room'
 import User from '#models/user'
 import ChatRoomInvitation from '#models/chat_room_invitation'
 import ChatRoomMembership from '#models/chat_room_membership'
+import { HttpException } from '#exceptions/http_exception'
 
 export default class ChatRoomService {
   async createChatRoom(user: User, payload: any): Promise<ChatRoom> {
@@ -13,39 +14,41 @@ export default class ChatRoomService {
   }
 
   async inviteUser(inviter: User, chatRoomId: number, invitedUserNickname: string) {
-    const chatRoom = await ChatRoom.findOrFail(chatRoomId)
+    let chatRoom: ChatRoom
+
+    try {
+      chatRoom = await ChatRoom.findOrFail(chatRoomId)
+    } catch (e) {
+      throw new HttpException(404, 'Chat not found')
+    }
+
     const invitedUser = await User.findByOrFail('nickname', invitedUserNickname)
 
     if (inviter.id === invitedUser.id) {
-      // TODO: throw exception
-      return
+      throw new HttpException(409, "You can't invite yourself")
     }
 
     await chatRoom.load('owner')
 
     if (chatRoom.private && chatRoom.owner.id !== inviter.id) {
-      // TODO: throw exception
-      return
+      throw new HttpException(403, 'Only the room owner can invite users')
     }
 
     if (invitedUser.id === chatRoom.owner.id) {
-      // TODO: throw exception
-      return
+      throw new HttpException(409, 'The user is already a member')
     }
 
     await chatRoom.load('chatRoomMemberships')
     for (const chatRoomMembership of chatRoom.chatRoomMemberships) {
       if (chatRoomMembership.userId === invitedUser.id) {
-        // TODO: throw exception
-        return
+        throw new HttpException(409, 'The user is already a member')
       }
     }
 
     await invitedUser.load('chatRoomInvitations')
     for (const invitedUserChatRoomInvitation of invitedUser.chatRoomInvitations) {
       if (invitedUserChatRoomInvitation.chatRoomId === chatRoom.id) {
-        // TODO: throw exception
-        return
+        throw new HttpException(409, 'The user is already invited')
       }
     }
 
@@ -56,17 +59,25 @@ export default class ChatRoomService {
     })
   }
 
-  async responseToInvitation(user: User, invitationId: number, payload: any) {
-    const invitation = await ChatRoomInvitation.findOrFail(invitationId)
+  async responseToInvitation(
+    user: User,
+    invitationId: number,
+    payload: any
+  ): Promise<ChatRoom | null> {
+    let invitation: ChatRoomInvitation
+
+    try {
+      invitation = await ChatRoomInvitation.findOrFail(invitationId)
+    } catch (e) {
+      throw new HttpException(404, 'Invitation not found')
+    }
 
     if (invitation.userId !== user.id) {
-      // TODO: throw exception
-      return
+      throw new HttpException(403, "You can't respond to this invitation")
     }
 
     if (invitation.accepted !== null) {
-      // TODO: throw exception
-      return
+      throw new HttpException(409, 'You responded to this invitation already')
     }
 
     const accept = payload.accept
@@ -74,25 +85,34 @@ export default class ChatRoomService {
     await invitation.save()
 
     if (accept) {
-      await ChatRoomMembership.create({
+      const membership = await ChatRoomMembership.create({
         userId: user.id,
         chatRoomId: invitation.chatRoomId,
         inviteId: invitation.id,
       })
+      await membership.load('chatRoom')
+
+      return membership.chatRoom
     }
+
+    return null
   }
 
-  async joinChatRoom(user: User, chatRoomName: string) {
-    const chatRoom = await ChatRoom.findByOrFail('name', chatRoomName)
+  async joinChatRoom(user: User, chatRoomName: string): Promise<ChatRoom> {
+    let chatRoom: ChatRoom
+
+    try {
+      chatRoom = await ChatRoom.findByOrFail('name', chatRoomName)
+    } catch (e) {
+      throw new HttpException(404, 'Chat not found')
+    }
 
     if (chatRoom.ownerId === user.id) {
-      // TODO: throw exception
-      return
+      throw new HttpException(409, 'You are a member already')
     }
 
     if (chatRoom.private) {
-      // TODO: throw exception
-      return
+      throw new HttpException(403, "You can't join a private room")
     }
 
     await user.load('chatRoomInvitations')
@@ -102,15 +122,14 @@ export default class ChatRoomService {
           accept: true,
         }
         await this.responseToInvitation(user, chatRoomInvitation.id, payload)
-        return
+        return chatRoom
       }
     }
 
     await user.load('chatRoomMemberships')
     for (const chatRoomMembership of user.chatRoomMemberships) {
       if (chatRoomMembership.chatRoomId === chatRoom.id) {
-        // TODO: throw exception
-        return
+        throw new HttpException(409, 'You are a member already')
       }
     }
 
@@ -118,20 +137,34 @@ export default class ChatRoomService {
       userId: user.id,
       chatRoomId: chatRoom.id,
     })
+
+    return chatRoom
   }
 
   async leaveChatRoom(user: User, chatRoomId: number) {
-    const chatRoom = await ChatRoom.findOrFail(chatRoomId)
+    let chatRoom: ChatRoom
+
+    try {
+      chatRoom = await ChatRoom.findOrFail(chatRoomId)
+    } catch (e) {
+      throw new HttpException(404, 'Chat not found')
+    }
 
     if (chatRoom.ownerId === user.id) {
       await chatRoom.delete()
       return
     }
 
-    const chatRoomMembership = await ChatRoomMembership.findByOrFail({
-      userId: user.id,
-      chatRoomId: chatRoomId,
-    })
+    let chatRoomMembership: ChatRoomMembership
+
+    try {
+      chatRoomMembership = await ChatRoomMembership.findByOrFail({
+        userId: user.id,
+        chatRoomId: chatRoomId,
+      })
+    } catch (e) {
+      throw new HttpException(403, 'You are not a member of this chat')
+    }
 
     await chatRoomMembership.delete()
   }
