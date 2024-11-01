@@ -1,5 +1,5 @@
 import { useUserStore } from 'stores/userStore';
-import { ChatRoom, ChatRoomInvitation } from 'components/models';
+import { AppSettings, ChatRoom, ChatRoomInvitation } from 'components/models';
 
 const apiIp = 'http://localhost:3333/api/';
 
@@ -48,6 +48,36 @@ async function fetchApi(apiFunction: string, authenticate: boolean, options: Fet
       throw new Error(httpError.message);
     }
     return await response.json();
+  } catch (error) {
+    throw error
+  }
+}
+
+export interface SettingsResponse {
+  userStates: {
+    id: number;
+    name: string;
+    color: string;
+  }[]
+}
+export async function getSettings(): Promise<AppSettings> {
+
+  try {
+    const data = await fetchApi('settings', false, {
+      method: 'GET',
+    }) as SettingsResponse
+
+    localStorage.setItem('settings', JSON.stringify(data))
+
+    return {
+      userStates: data.userStates.map(userStateData => {
+        return {
+          id: userStateData.id,
+          name: userStateData.name,
+          color: userStateData.color,
+        }
+      })
+    }
   } catch (error) {
     throw error
   }

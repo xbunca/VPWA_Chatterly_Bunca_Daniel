@@ -10,8 +10,11 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 
+const SettingsController = () => import('#controllers/settings_controller')
 const UsersController = () => import('#controllers/users_controller')
 const ChatRoomsController = () => import('#controllers/chat_rooms_controller')
+
+router.get('/api/settings', [SettingsController, 'settings'])
 
 router.post('/api/auth/register', [UsersController, 'create'])
 router.post('/api/auth/login', [UsersController, 'login'])

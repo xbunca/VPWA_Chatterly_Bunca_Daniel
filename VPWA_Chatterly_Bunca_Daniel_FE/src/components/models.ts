@@ -1,3 +1,7 @@
+export interface AppSettings {
+  userStates: UserState[];
+}
+
 export interface User {
   name: string;
   surname: string;

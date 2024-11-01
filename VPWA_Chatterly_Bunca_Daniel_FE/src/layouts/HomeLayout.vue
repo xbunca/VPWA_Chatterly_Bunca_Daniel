@@ -12,7 +12,7 @@ import {
   createChatRoom,
   getAccountDetail,
   getChatRoomInvitations,
-  getChatRooms,
+  getChatRooms, getSettings,
   inviteToChatRoom, joinChatRoom, leaveChatRoom, logoutUser,
   updateNotifyMentionsOnly
 } from 'boot/api';
@@ -30,6 +30,11 @@ if (userStore.accessToken === null) {
 }
 
 onBeforeMount(async () => {
+  try {
+    const settings = await getSettings()
+    settingsStore.userStates = settings.userStates
+  } catch (e) {}
+
   try {
     const accountDetail = await getAccountDetail()
     userStore.user = {

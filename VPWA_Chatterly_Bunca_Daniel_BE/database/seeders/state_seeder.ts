@@ -6,15 +6,15 @@ export default class extends BaseSeeder {
     await State.createMany([
       {
         name: 'Offline',
-        color: '#9e9e9e',
+        color: 'grey',
       },
       {
         name: 'Online',
-        color: '#4caf50',
+        color: 'green',
       },
       {
         name: 'Do not disturb',
-        color: '#f44336',
+        color: 'red',
       },
     ])
   }

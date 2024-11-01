@@ -16,4 +16,12 @@ export default class State extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
+
+  async getJson() {
+    return {
+      id: this.id,
+      name: this.name,
+      color: this.color,
+    }
+  }
 }
