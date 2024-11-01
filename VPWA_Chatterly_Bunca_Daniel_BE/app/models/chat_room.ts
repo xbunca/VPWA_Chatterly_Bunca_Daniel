@@ -34,11 +34,23 @@ export default class ChatRoom extends BaseModel {
   declare updatedAt: DateTime
 
   async getJson(user: User) {
+    // @ts-ignore
+    await this.load('chatRoomMemberships')
+    let inviterNickname = null
+    for (const userMembership of this.chatRoomMemberships) {
+      if (userMembership.userId === user.id && userMembership.inviteId !== null) {
+        await userMembership.load('invitation')
+        await userMembership.invitation.load('inviter')
+        inviterNickname = userMembership.invitation.inviter.nickname
+        break
+      }
+    }
     return {
       id: this.id,
       name: this.name,
       private: this.private,
       isOwner: user.id === this.ownerId,
+      inviteFrom: inviterNickname,
     }
   }
 }

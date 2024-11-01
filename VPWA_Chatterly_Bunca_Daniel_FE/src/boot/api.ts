@@ -205,7 +205,7 @@ export async function createChatRoom(name: string, isPrivate: boolean): Promise<
       name: data.name,
       private: data.private,
       isOwner: data.isOwner,
-      inviteFrom: null,
+      inviteFrom: data.inviteFrom,
       users: [],
       messages: [],
     }
@@ -225,7 +225,7 @@ export async function joinChatRoom(name: string): Promise<ChatRoom> {
       name: data.name,
       private: data.private,
       isOwner: data.isOwner,
-      inviteFrom: null,
+      inviteFrom: data.inviteFrom,
       users: [],
       messages: [],
     }
@@ -239,6 +239,7 @@ interface ChatRoomListItemResponse {
   name: string;
   private: boolean;
   isOwner: boolean;
+  inviteFrom: string | null;
 }
 
 export async function getChatRooms(): Promise<ChatRoom[]> {
@@ -254,7 +255,7 @@ export async function getChatRooms(): Promise<ChatRoom[]> {
         name: chatRoom.name,
         private: chatRoom.private,
         isOwner: chatRoom.isOwner,
-        inviteFrom: null,
+        inviteFrom: chatRoom.inviteFrom,
         users: [],
         messages: [],
       })
@@ -319,7 +320,7 @@ export async function respondToChatRoomInvitation(invitationId: number, accept: 
         name: data.name,
         private: data.private,
         isOwner: data.isOwner,
-        inviteFrom: null,
+        inviteFrom: data.inviteFrom,
         messages: [],
         users: [],
       }
