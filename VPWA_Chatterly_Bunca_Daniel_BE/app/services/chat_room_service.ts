@@ -3,6 +3,7 @@ import User from '#models/user'
 import ChatRoomInvitation from '#models/chat_room_invitation'
 import ChatRoomMembership from '#models/chat_room_membership'
 import { HttpException } from '#exceptions/http_exception'
+import Ws from '#services/ws'
 
 export default class ChatRoomService {
   async createChatRoom(user: User, payload: any): Promise<ChatRoom> {
@@ -58,10 +59,17 @@ export default class ChatRoomService {
       }
     }
 
-    await ChatRoomInvitation.create({
+    const invitation = await ChatRoomInvitation.create({
       inviterId: inviter.id,
       chatRoomId: chatRoom.id,
       userId: invitedUser.id,
+    })
+
+    Ws.io?.to(invitedUser.nickname).emit('chatRoomInvitation', {
+      id: invitation.id,
+      name: chatRoom.name,
+      private: chatRoom.private,
+      from: inviter.nickname,
     })
   }
 
