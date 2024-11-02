@@ -27,6 +27,7 @@ export interface Message {
   id: number;
   content: string;
   isMine: boolean;
+  isMentioned: boolean;
   sender: Sender;
 }
 

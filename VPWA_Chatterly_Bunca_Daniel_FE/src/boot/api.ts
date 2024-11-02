@@ -402,6 +402,7 @@ export async function getChatRoomMessages(chatId: number, limit: number, lastMes
         id: md.id,
         content: md.content,
         isMine: md.isMine,
+        isMentioned: md.isMentioned,
         sender: {
           name: md.sender.name,
           surname: md.sender.surname,
@@ -429,6 +430,7 @@ interface MessageData {
   id: number;
   content: string;
   isMine: boolean;
+  isMentioned: boolean;
   sender: {
     name: string;
     surname: string;
@@ -448,6 +450,7 @@ socket.on('newMessage', async (data) => {
     id: message.message.id,
     content: message.message.content,
     isMine: message.message.isMine,
+    isMentioned: message.message.isMentioned,
     sender: {
       name: message.message.sender.name,
       surname: message.message.sender.surname,

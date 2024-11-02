@@ -143,7 +143,7 @@ onBeforeUnmount(() => {
               "
               :name="message.sender.name + ' ' + message.sender.surname"
               :text="[message.content]"
-              :bg-color="false ? 'yellow-6' : ''"
+              :bg-color="message.isMentioned ? 'yellow-6' : ''"
               :sent="message.isMine"
             />
             <q-avatar

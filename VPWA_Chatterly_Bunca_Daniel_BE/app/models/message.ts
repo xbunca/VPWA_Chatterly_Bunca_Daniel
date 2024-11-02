@@ -40,6 +40,7 @@ export default class Message extends BaseModel {
       id: this.id,
       content: this.content,
       isMine: this.senderId === user.id,
+      isMentioned: this.content.includes(`@${user.nickname}`),
       sender: {
         name: this.sender.name,
         surname: this.sender.surname,
