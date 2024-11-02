@@ -226,7 +226,7 @@ const onSend = async () => {
           name: userStore.user.name,
           surname: userStore.user.surname,
           nickname: userStore.user.nickname,
-          status: userStore.user.stateId,
+          stateId: userStore.user.stateId,
         },
       });
     }

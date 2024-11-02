@@ -177,4 +177,23 @@ export default class ChatRoomService {
 
     await chatRoomMembership.delete()
   }
+
+  async getChatRoom(user: User, chatRoomId: number): Promise<ChatRoom> {
+    await user.load('ownedChatRooms')
+    for (const chatRoom of user.ownedChatRooms) {
+      if (chatRoom.id === chatRoomId) {
+        return chatRoom
+      }
+    }
+
+    await user.load('chatRoomMemberships')
+    for (const chatRoomMembership of user.chatRoomMemberships) {
+      if (chatRoomMembership.chatRoomId === chatRoomId) {
+        await chatRoomMembership.load('chatRoom')
+        return chatRoomMembership.chatRoom
+      }
+    }
+
+    throw new HttpException(404, 'Chat not found')
+  }
 }

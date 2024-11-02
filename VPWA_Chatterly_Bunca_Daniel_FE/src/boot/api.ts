@@ -342,3 +342,36 @@ export async function leaveChatRoom(chatId: number) {
     throw error
   }
 }
+
+export async function getChatRoomDetails(chatId: number): Promise<ChatRoom> {
+  interface ChatRoomDetails extends ChatRoomListItemResponse {
+    users: {
+      name: string;
+      surname: string;
+      nickname: string;
+      stateId: number;
+    }[]
+  }
+
+  try {
+    const data = await fetchApi(`chatRoom/${ chatId }`, true, {}) as ChatRoomDetails
+    return {
+      id: data.id,
+      name: data.name,
+      private: data.private,
+      isOwner: data.isOwner,
+      inviteFrom: data.inviteFrom,
+      users: data.users.map(user => {
+        return {
+          name: user.name,
+          surname: user.surname,
+          nickname: user.nickname,
+          stateId: user.stateId,
+        }
+      }),
+      messages: []
+    }
+  } catch (error) {
+    throw error
+  }
+}

@@ -20,7 +20,7 @@ export interface Sender {
   name: string;
   surname: string;
   nickname: string;
-  status: number;
+  stateId: number;
 }
 
 export interface Message {

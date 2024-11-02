@@ -70,7 +70,7 @@ export function generateMessages(chat: ChatRoom, user: User, count: number)  {
     name: user.name,
     surname: user.surname,
     nickname: user.nickname,
-    status: user.stateId
+    stateId: user.stateId
   }
   for (let i = 0; i < count; i++) {
     const sender = Math.random() > 0.2 ? chat.users[Math.floor(Math.random() * chat.users.length)] : userSender

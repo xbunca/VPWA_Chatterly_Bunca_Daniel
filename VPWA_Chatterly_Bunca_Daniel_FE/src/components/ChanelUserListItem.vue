@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { Sender } from 'components/models';
+import { useSettingsStore } from 'stores/settingsStore';
 const props = withDefaults(defineProps<Sender>(), {});
+const settingsStore = useSettingsStore()
+
+function getStateColor(stateId: number) {
+  return settingsStore.userStates.find(state => state.id === stateId)?.color
+}
 </script>
 
 <template>
@@ -16,7 +22,7 @@ const props = withDefaults(defineProps<Sender>(), {});
       />
       <q-avatar
         id="statusAvatar"
-        :color="props.status == 0 ? 'grey' : props.status == 1 ? 'green' : 'red'"
+        :color="getStateColor(props.stateId)"
         size="2vh"
       />
     </div>

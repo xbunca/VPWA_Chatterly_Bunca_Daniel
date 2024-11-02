@@ -53,4 +53,35 @@ export default class ChatRoom extends BaseModel {
       inviteFrom: inviterNickname,
     }
   }
+
+  async getJsonDetail(user: User) {
+    const listItemJson = await this.getJson(user)
+
+    const usersList: User[] = []
+
+    // @ts-ignore
+    await this.load('owner')
+    usersList.push(this.owner)
+
+    for (const chatMembership of this.chatRoomMemberships) {
+      await chatMembership.load('user')
+      usersList.push(chatMembership.user)
+    }
+
+    return {
+      id: listItemJson.id,
+      name: listItemJson.name,
+      private: listItemJson.private,
+      isOwner: listItemJson.isOwner,
+      inviteFrom: listItemJson.inviteFrom,
+      users: usersList.map((u) => {
+        return {
+          name: u.name,
+          surname: u.surname,
+          nickname: u.nickname,
+          stateId: u.stateId,
+        }
+      }),
+    }
+  }
 }

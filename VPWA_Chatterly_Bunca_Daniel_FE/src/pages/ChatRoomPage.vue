@@ -1,43 +1,29 @@
 <script setup lang="ts">
-
 import { useRoute, useRouter } from 'vue-router';
 import { useUserStore } from 'stores/userStore';
 import { generateMessages, useChatsStore } from 'stores/chatsStore';
-import { onBeforeUnmount, watch, ref } from 'vue';
-import { ChatRoom } from 'src/components/models';
+import { onBeforeUnmount, watch } from 'vue';
+import { getChatRoomDetails } from 'boot/api';
 
-const router = useRouter()
-const route = useRoute()
+const router = useRouter();
+const route = useRoute();
 const userStore = useUserStore();
-const chatsStore = useChatsStore()
-const selectedChatRoom = ref<ChatRoom | null>(null);
+const chatsStore = useChatsStore();
 
+const loadSelectedChatRoom = async (chatId: string | string[]) => {
+  const id = Array.isArray(chatId) ? Number(chatId[0]) : Number(chatId);
 
-const loadSelectedChatRoom = (chatId: string | string[]) => {
-
-  const id = Array.isArray(chatId) ? chatId[0] : chatId;
-
-  const chatRoom = chatsStore.chatRooms.find(chat => chat.id.toString() === id);
+  const chatRoom = chatsStore.chatRooms.find((chat) => chat.id === id);
 
   if (chatRoom != undefined) {
     chatsStore.selectedChat = chatRoom;
-    selectedChatRoom.value = chatRoom;
-
+    chatsStore.selectedChat = await getChatRoomDetails(id);
   } else {
-    router.push({ name: 'home' });
+    await router.push({ name: 'home' });
   }
 };
 
 loadSelectedChatRoom(route.params.id);
-
-watch(
-  () => chatsStore.selectedChat,
-  (newSelectedChat) => {
-    if (newSelectedChat) {
-      loadSelectedChatRoom(newSelectedChat.id.toString());
-    }
-  }
-);
 
 watch(
   () => route.params.id,
@@ -46,94 +32,115 @@ watch(
   }
 );
 
-const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void => {
+const onLoad = (
+  index: number,
+  done: (stop?: boolean | undefined) => void
+): void => {
   setTimeout(() => {
-    generateMessages(chatsStore.selectedChat!, userStore.user, Math.floor(Math.random() * (15 - 3 + 1)) + 3);
-    done()
-  }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500)
-}
+    generateMessages(
+      chatsStore.selectedChat!,
+      userStore.user,
+      Math.floor(Math.random() * (15 - 3 + 1)) + 3
+    );
+    done();
+  }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500);
+};
 
 onBeforeUnmount(() => {
-  chatsStore.selectedChat = null
-})
-
+  chatsStore.selectedChat = null;
+});
 </script>
 
 <template>
-<div id="container">
-  <div id="chat-room-info-container">
-    <div id="image-container">
-      <div id="image">
-        <p>{{ selectedChatRoom?.name[0] }}</p>
+  <div id="container">
+    <div id="chat-room-info-container">
+      <div id="image-container">
+        <div id="image">
+          <p>{{ chatsStore.selectedChat?.name[0] }}</p>
+        </div>
+        <q-avatar
+          id="roomTypeAvatar"
+          color="white"
+          size="20px"
+          font-size="80%"
+          text-color="black"
+          :icon="chatsStore.selectedChat?.private ? 'lock' : 'language'"
+        />
       </div>
-      <q-avatar
-        id="roomTypeAvatar"
-        color="white"
-        size="20px"
-        font-size="80%"
-        text-color="black"
-        :icon="selectedChatRoom?.private ? 'lock' : 'language'"
+
+      <div id="chat-info-container">
+        <p id="chatNameLabel">{{ chatsStore.selectedChat?.name }}</p>
+        <p v-if="chatsStore.selectedChat?.inviteFrom != null" id="invitedByLabel">
+          Invite from: <br />@{{ chatsStore.selectedChat?.inviteFrom }}
+        </p>
+      </div>
+
+      <q-btn
+        id="listButton"
+        icon="group"
+        color="black"
+        size="lg"
+        @click="chatsStore.chanelUserList = true"
+        flat
+        rounded
+        dense
+      />
+
+      <q-btn
+        id="closeButton"
+        icon="close"
+        color="black"
+        size="lg"
+        @click="router.push({ name: 'home' })"
+        flat
+        rounded
+        dense
       />
     </div>
 
-    <div id="chat-info-container">
-      <p id="chatNameLabel">{{ selectedChatRoom?.name }}</p>
-      <p v-if="selectedChatRoom?.inviteFrom != null" id="invitedByLabel">Invite from: <br>@{{ selectedChatRoom?.inviteFrom }}</p>
+    <div id="scroll-container" class="scroll q-pa-md">
+      <q-infinite-scroll @load="onLoad" reverse>
+        <template v-slot:loading>
+          <div class="row justify-center q-my-md">
+            <q-spinner color="primary" name="dots" size="40px" />
+          </div>
+        </template>
+
+        <div
+          id="chat-message-wrapper"
+          v-for="(message, index) in chatsStore.selectedChat?.messages"
+          :key="index"
+        >
+          <div id="avatar-status-wrapper">
+            <q-chat-message
+              :avatar="
+                'https://ui-avatars.com/api/?name=' +
+                message.sender.name[0] +
+                '+' +
+                message.sender.surname[0]
+              "
+              :name="message.sender.name + ' ' + message.sender.surname"
+              :text="[message.content]"
+              :bg-color="false ? 'yellow-6' : ''"
+              :sent="false"
+            />
+            <q-avatar
+              v-if="true"
+              id="statusAvatar"
+              :color="
+                message.sender.stateId == 0
+                  ? 'grey'
+                  : message.sender.stateId == 1
+                  ? 'green'
+                  : 'red'
+              "
+              size="2vh"
+            />
+          </div>
+        </div>
+      </q-infinite-scroll>
     </div>
-
-    <q-btn
-      id="listButton"
-      icon="group"
-      color="black"
-      size="lg"
-      @click="chatsStore.chanelUserList = true"
-      flat
-      rounded
-      dense
-    />
-
-    <q-btn
-      id="closeButton"
-      icon="close"
-      color="black"
-      size="lg"
-      @click="router.push({ name: 'home' })"
-      flat
-      rounded
-      dense
-    />
   </div>
-
-  <div id="scroll-container" class="scroll q-pa-md">
-    <q-infinite-scroll @load="onLoad" reverse>
-      <template v-slot:loading>
-        <div class="row justify-center q-my-md">
-          <q-spinner color="primary" name="dots" size="40px" />
-        </div>
-      </template>
-
-      <div id="chat-message-wrapper" v-for="(message, index) in selectedChatRoom?.messages" :key="index">
-        <div id="avatar-status-wrapper">
-          <q-chat-message
-          :avatar="'https://ui-avatars.com/api/?name=' + message.sender.name[0] + '+' + message.sender.surname[0]"
-          :name="message.sender.name + ' ' + message.sender.surname"
-          :text="[ message.content ]"
-          :bg-color="false ? 'yellow-6' : ''"
-          :sent="false"
-          />
-          <q-avatar
-          v-if="true"
-          id="statusAvatar"
-          :color="message.sender.status == 0 ? 'grey' : message.sender.status == 1 ? 'green' : 'red'"
-          size="2vh"
-          />
-        </div>
-      </div>
-
-    </q-infinite-scroll>
-  </div>
-
-</div>
 </template>
 
 <style scoped>
@@ -224,5 +231,4 @@ onBeforeUnmount(() => {
   bottom: 6px;
   left: 31px;
 }
-
 </style>
