@@ -3,6 +3,7 @@ import { BaseModel, belongsTo, column, hasMany } from '@adonisjs/lucid/orm'
 import User from '#models/user'
 import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
 import ChatRoomMembership from '#models/chat_room_membership'
+import Message from '#models/message'
 
 export default class ChatRoom extends BaseModel {
   @column({ isPrimary: true })
@@ -26,6 +27,11 @@ export default class ChatRoom extends BaseModel {
     foreignKey: 'chatRoomId',
   })
   declare chatRoomMemberships: HasMany<typeof ChatRoomMembership>
+
+  @hasMany(() => Message, {
+    foreignKey: 'chatRoomId',
+  })
+  declare messages: HasMany<typeof Message>
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

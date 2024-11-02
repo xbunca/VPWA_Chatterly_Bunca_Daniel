@@ -4,6 +4,7 @@ import ChatRoomInvitation from '#models/chat_room_invitation'
 import ChatRoomMembership from '#models/chat_room_membership'
 import { HttpException } from '#exceptions/http_exception'
 import Ws from '#services/ws'
+import Message from '#models/message'
 
 export default class ChatRoomService {
   async createChatRoom(user: User, payload: any): Promise<ChatRoom> {
@@ -203,5 +204,51 @@ export default class ChatRoomService {
     }
 
     throw new HttpException(404, 'Chat not found')
+  }
+
+  async createMessage(
+    user: User,
+    content: string,
+    chatRoomId: number,
+    chatRoomInstance: ChatRoom | null = null
+  ) {
+    let chatRoom = chatRoomInstance
+
+    if (chatRoom === null) {
+      try {
+        chatRoom = await ChatRoom.findOrFail(chatRoomId)
+      } catch (error) {
+        throw new HttpException(404, 'Chat not found')
+      }
+    }
+
+    const message = await Message.create({
+      content: content,
+      senderId: user.id,
+      chatRoomId: chatRoom.id,
+    })
+
+    await chatRoom.load('owner')
+    if (chatRoom.owner.id !== user.id) {
+      const messageJson = await message.getJson(chatRoom.owner)
+      Ws.io?.to(chatRoom.owner.nickname).emit('newMessage', {
+        chatRoomId: chatRoom.id,
+        message: messageJson,
+      })
+    }
+
+    await chatRoom.load('chatRoomMemberships')
+    for (const chatRoomMembership of chatRoom.chatRoomMemberships) {
+      await chatRoomMembership.load('user')
+      if (chatRoomMembership.user.id !== user.id) {
+        const messageJson = await message.getJson(chatRoomMembership.user)
+        Ws.io?.to(chatRoomMembership.user.nickname).emit('newMessage', {
+          chatRoomId: chatRoom.id,
+          message: messageJson,
+        })
+      }
+    }
+
+    return message
   }
 }
