@@ -67,4 +67,19 @@ export default class ChatRoomsController {
     const chatRoom = await this.chatRoomService.getChatRoom(user, chatRoomId)
     return context.response.json(await chatRoom.getJsonDetail(user))
   }
+
+  async getMessages(context: HttpContext) {
+    const user = context.auth.getUserOrFail()
+    const chatRoomId: number = Number(context.request.param('chatRoomId'))
+    const limit: number = Number(context.request.qs().limit)
+    const lastMessageId: number | null = context.request.qs().lastMessageId
+      ? Number(context.request.qs().lastMessageId)
+      : null
+    const messages = await this.chatRoomService.getMessages(user, chatRoomId, limit, lastMessageId)
+    const messagesJson = []
+    for (const message of messages) {
+      messagesJson.push(await message.getJson(user))
+    }
+    return context.response.json(messagesJson)
+  }
 }

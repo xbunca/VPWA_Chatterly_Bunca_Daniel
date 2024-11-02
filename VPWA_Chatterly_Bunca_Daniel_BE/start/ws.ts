@@ -25,7 +25,12 @@ app.ready(() => {
         return
       }
 
-      const chatRoom = await ChatRoom.find(data.chatRoomId)
+      let chatRoom: ChatRoom | null = null
+
+      try {
+        chatRoom = await chatRomService.getChatRoom(user, data.chatRoomId)
+      } catch (error) {}
+
       if (chatRoom === null) {
         return
       }

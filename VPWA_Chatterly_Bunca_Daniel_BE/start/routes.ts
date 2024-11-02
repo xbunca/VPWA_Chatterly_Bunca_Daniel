@@ -37,3 +37,6 @@ router
   .delete('/api/chatRoom/:chatRoomId/leave', [ChatRoomsController, 'leave'])
   .use([middleware.auth()])
 router.get('/api/chatRoom/:chatRoomId', [ChatRoomsController, 'detail']).use([middleware.auth()])
+router
+  .get('/api/chatRoom/:chatRoomId/message', [ChatRoomsController, 'getMessages'])
+  .use([middleware.auth()])

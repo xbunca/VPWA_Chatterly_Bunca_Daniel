@@ -215,11 +215,7 @@ export default class ChatRoomService {
     let chatRoom = chatRoomInstance
 
     if (chatRoom === null) {
-      try {
-        chatRoom = await ChatRoom.findOrFail(chatRoomId)
-      } catch (error) {
-        throw new HttpException(404, 'Chat not found')
-      }
+      chatRoom = await this.getChatRoom(user, chatRoomId)
     }
 
     const message = await Message.create({
@@ -246,5 +242,29 @@ export default class ChatRoomService {
     }
 
     return message
+  }
+
+  async getMessages(user: User, chatRoomId: number, limit: number, lastMessageId: number | null) {
+    let chatRoom = await this.getChatRoom(user, chatRoomId)
+
+    const messages: Message[] = []
+    let canAdd = lastMessageId === null
+    await chatRoom.load('messages')
+    for (const message of chatRoom.messages) {
+      if (canAdd) {
+        messages.push(message)
+        limit--
+
+        if (limit === 0) {
+          break
+        }
+      }
+
+      if (message.id === lastMessageId) {
+        canAdd = true
+      }
+    }
+
+    return messages
   }
 }
