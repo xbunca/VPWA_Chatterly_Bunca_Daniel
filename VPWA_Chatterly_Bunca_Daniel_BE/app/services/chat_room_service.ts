@@ -250,7 +250,8 @@ export default class ChatRoomService {
     const messages: Message[] = []
     let canAdd = lastMessageId === null
     await chatRoom.load('messages')
-    for (const message of chatRoom.messages) {
+    const reversedMessages = chatRoom.messages.toReversed()
+    for (const message of reversedMessages) {
       if (canAdd) {
         messages.push(message)
         limit--
@@ -265,6 +266,6 @@ export default class ChatRoomService {
       }
     }
 
-    return messages
+    return messages.reverse()
   }
 }

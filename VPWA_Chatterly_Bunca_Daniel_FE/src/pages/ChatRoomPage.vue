@@ -2,13 +2,15 @@
 import { useRoute, useRouter } from 'vue-router';
 import { useChatsStore } from 'stores/chatsStore';
 import { onBeforeUnmount, watch } from 'vue';
-import { getChatRoomDetails } from 'boot/api';
+import { getChatRoomDetails, getChatRoomMessages } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
+import { useQuasar } from 'quasar';
 
 const router = useRouter();
 const route = useRoute();
 const chatsStore = useChatsStore();
 const settingsStore = useSettingsStore();
+const q = useQuasar()
 
 const loadSelectedChatRoom = async (chatId: string | string[]) => {
   const id = Array.isArray(chatId) ? Number(chatId[0]) : Number(chatId);
@@ -32,13 +34,38 @@ watch(
   }
 );
 
+let isLoading = false
 const onLoad = (
   index: number,
   done: (stop?: boolean | undefined) => void
 ): void => {
-  setTimeout(() => {
-    done();
-  }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500);
+
+  if (isLoading) return;
+
+  isLoading = true;
+
+  (async () => {
+    try {
+      const [chatId, newMessages] = await getChatRoomMessages(chatsStore.selectedChat!.id, 20, chatsStore.selectedChat!.messages.length > 0 ? chatsStore.selectedChat!.messages[0].id : null);
+      const chatRoom = chatsStore.chatRooms.find((chat) => chat.id === chatId);
+      chatRoom?.messages.unshift(...newMessages);
+    } catch (error) {
+      if (error instanceof Error) {
+        q.notify({
+          type: 'negative',
+          icon: 'warning',
+          message: error.message,
+          color: 'red-5',
+          position: 'center',
+          timeout: 500
+        })
+      }
+    }
+
+    done()
+    isLoading = false
+  })()
+
 };
 
 onBeforeUnmount(() => {

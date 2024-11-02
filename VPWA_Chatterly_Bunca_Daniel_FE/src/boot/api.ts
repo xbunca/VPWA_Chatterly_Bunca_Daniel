@@ -1,5 +1,5 @@
 import { useUserStore } from 'stores/userStore';
-import { AppSettings, ChatRoom, ChatRoomInvitation } from 'components/models';
+import { AppSettings, ChatRoom, ChatRoomInvitation, Message } from 'components/models';
 import { io } from 'socket.io-client';
 import { useChatsStore } from 'stores/chatsStore';
 
@@ -12,6 +12,7 @@ interface FetchOptions {
   method?: string;
   headers?: Record<string, string>;
   body?: Record<string, unknown> | null;
+  query?: Record<string, string | number | boolean>;
 }
 
 interface HttpError {
@@ -44,8 +45,12 @@ async function fetchApi(apiFunction: string, authenticate: boolean, options: Fet
     body: options.body ? JSON.stringify(options.body) : undefined,
   };
 
+  const queryString = options.query
+    ? '?' + new URLSearchParams(options.query as Record<string, string>).toString()
+    : '';
+
   try {
-    const response = await fetch(`${apiIp}${apiFunction}`, config);
+    const response = await fetch(`${apiIp}${apiFunction}${queryString}`, config);
     if (!response.ok) {
       const httpError = await response.json() as HttpError;
       throw new Error(httpError.message);
@@ -379,6 +384,37 @@ export async function getChatRoomDetails(chatId: number): Promise<ChatRoom> {
   }
 }
 
+export async function getChatRoomMessages(chatId: number, limit: number, lastMessageId: number | null): Promise<[number, Message[]]> {
+
+  try {
+    let query = {
+      limit: limit,
+    }
+    if (lastMessageId !== null) {
+      query = Object.assign({}, query, { lastMessageId: lastMessageId })
+    }
+    const data = await fetchApi(`chatRoom/${ chatId }/message`, true, {
+      query: query,
+    }) as MessageData[]
+
+    return [chatId, data.map((md) => {
+      return {
+        id: md.id,
+        content: md.content,
+        isMine: md.isMine,
+        sender: {
+          name: md.sender.name,
+          surname: md.sender.surname,
+          nickname: md.sender.nickname,
+          stateId: md.sender.stateId,
+        },
+      }
+    })]
+  } catch (error) {
+    throw error
+  }
+}
+
 // SOCKET
 
 const chatStore = useChatsStore()
@@ -389,19 +425,21 @@ export async function authenticateSocket() {
   })
 }
 
+interface MessageData {
+  id: number;
+  content: string;
+  isMine: boolean;
+  sender: {
+    name: string;
+    surname: string;
+    nickname: string;
+    stateId: number;
+  }
+}
+
 interface MessageReceived {
   chatRoomId: number;
-  message: {
-    id: number;
-    content: string;
-    isMine: boolean;
-    sender: {
-      name: string;
-      surname: string;
-      nickname: string;
-      stateId: number;
-    }
-  }
+  message: MessageData
 }
 socket.on('newMessage', async (data) => {
   const message: MessageReceived = JSON.parse(JSON.stringify(data))
