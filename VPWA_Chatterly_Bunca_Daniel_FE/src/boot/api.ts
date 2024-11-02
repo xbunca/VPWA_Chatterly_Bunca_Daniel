@@ -1,7 +1,10 @@
 import { useUserStore } from 'stores/userStore';
 import { AppSettings, ChatRoom, ChatRoomInvitation } from 'components/models';
+import { io } from 'socket.io-client';
+import { useChatsStore } from 'stores/chatsStore';
 
 const apiIp = 'http://localhost:3333/api/';
+const socket = io('http://localhost:3333');
 
 const userStore = useUserStore()
 
@@ -374,4 +377,52 @@ export async function getChatRoomDetails(chatId: number): Promise<ChatRoom> {
   } catch (error) {
     throw error
   }
+}
+
+// SOCKET
+
+const chatStore = useChatsStore()
+
+export async function authenticateSocket() {
+  socket.emit('authenticate', {
+    accessToken: userStore.accessToken,
+  })
+}
+
+interface MessageReceived {
+  chatRoomId: number;
+  message: {
+    id: number;
+    content: string;
+    isMine: boolean;
+    sender: {
+      name: string;
+      surname: string;
+      nickname: string;
+      stateId: number;
+    }
+  }
+}
+socket.on('newMessage', async (data) => {
+  const message: MessageReceived = JSON.parse(JSON.stringify(data))
+  const chatRoom = chatStore.chatRooms.find(chatRoom => chatRoom.id === message.chatRoomId)
+  chatRoom?.messages.push({
+    id: message.message.id,
+    content: message.message.content,
+    isMine: message.message.isMine,
+    sender: {
+      name: message.message.sender.name,
+      surname: message.message.sender.surname,
+      nickname: message.message.sender.nickname,
+      stateId: message.message.sender.stateId,
+    },
+  })
+})
+
+export async function sendMessage(chatId: number, message: string) {
+  socket.emit('newMessage', {
+    accessToken: userStore.accessToken,
+    chatRoomId: chatId,
+    content: message,
+  })
 }

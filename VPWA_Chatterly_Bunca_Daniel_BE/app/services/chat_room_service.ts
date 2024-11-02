@@ -229,24 +229,20 @@ export default class ChatRoomService {
     })
 
     await chatRoom.load('owner')
-    if (chatRoom.owner.id !== user.id) {
-      const messageJson = await message.getJson(chatRoom.owner)
-      Ws.io?.to(chatRoom.owner.nickname).emit('newMessage', {
-        chatRoomId: chatRoom.id,
-        message: messageJson,
-      })
-    }
+    const messageJson = await message.getJson(chatRoom.owner)
+    Ws.io?.to(chatRoom.owner.nickname).emit('newMessage', {
+      chatRoomId: chatRoom.id,
+      message: messageJson,
+    })
 
     await chatRoom.load('chatRoomMemberships')
     for (const chatRoomMembership of chatRoom.chatRoomMemberships) {
       await chatRoomMembership.load('user')
-      if (chatRoomMembership.user.id !== user.id) {
-        const messageJson = await message.getJson(chatRoomMembership.user)
-        Ws.io?.to(chatRoomMembership.user.nickname).emit('newMessage', {
-          chatRoomId: chatRoom.id,
-          message: messageJson,
-        })
-      }
+      const messageJson2 = await message.getJson(chatRoomMembership.user)
+      Ws.io?.to(chatRoomMembership.user.nickname).emit('newMessage', {
+        chatRoomId: chatRoom.id,
+        message: messageJson2,
+      })
     }
 
     return message

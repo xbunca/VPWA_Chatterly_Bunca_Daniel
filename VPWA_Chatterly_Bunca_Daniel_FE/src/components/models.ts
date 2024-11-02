@@ -26,6 +26,7 @@ export interface Sender {
 export interface Message {
   id: number;
   content: string;
+  isMine: boolean;
   sender: Sender;
 }
 

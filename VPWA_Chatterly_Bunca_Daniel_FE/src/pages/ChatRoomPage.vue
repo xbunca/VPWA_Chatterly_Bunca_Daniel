@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
-import { useUserStore } from 'stores/userStore';
-import { generateMessages, useChatsStore } from 'stores/chatsStore';
+import { useChatsStore } from 'stores/chatsStore';
 import { onBeforeUnmount, watch } from 'vue';
 import { getChatRoomDetails } from 'boot/api';
+import { useSettingsStore } from 'stores/settingsStore';
 
 const router = useRouter();
 const route = useRoute();
-const userStore = useUserStore();
 const chatsStore = useChatsStore();
+const settingsStore = useSettingsStore();
 
 const loadSelectedChatRoom = async (chatId: string | string[]) => {
   const id = Array.isArray(chatId) ? Number(chatId[0]) : Number(chatId);
@@ -17,7 +17,7 @@ const loadSelectedChatRoom = async (chatId: string | string[]) => {
 
   if (chatRoom != undefined) {
     chatsStore.selectedChat = chatRoom;
-    chatsStore.selectedChat = await getChatRoomDetails(id);
+    chatsStore.selectedChat.users = (await getChatRoomDetails(id)).users;
   } else {
     await router.push({ name: 'home' });
   }
@@ -37,11 +37,6 @@ const onLoad = (
   done: (stop?: boolean | undefined) => void
 ): void => {
   setTimeout(() => {
-    generateMessages(
-      chatsStore.selectedChat!,
-      userStore.user,
-      Math.floor(Math.random() * (15 - 3 + 1)) + 3
-    );
     done();
   }, Math.floor(Math.random() * (2000 - 500 + 1)) + 500);
 };
@@ -108,8 +103,8 @@ onBeforeUnmount(() => {
 
         <div
           id="chat-message-wrapper"
-          v-for="(message, index) in chatsStore.selectedChat?.messages"
-          :key="index"
+          v-for="message in chatsStore.selectedChat?.messages"
+          :key="message.id"
         >
           <div id="avatar-status-wrapper">
             <q-chat-message
@@ -122,18 +117,12 @@ onBeforeUnmount(() => {
               :name="message.sender.name + ' ' + message.sender.surname"
               :text="[message.content]"
               :bg-color="false ? 'yellow-6' : ''"
-              :sent="false"
+              :sent="message.isMine"
             />
             <q-avatar
-              v-if="true"
+              v-if="!message.isMine"
               id="statusAvatar"
-              :color="
-                message.sender.stateId == 0
-                  ? 'grey'
-                  : message.sender.stateId == 1
-                  ? 'green'
-                  : 'red'
-              "
+              :color="settingsStore.userStates.find(us => us.id === message.sender.stateId)?.color"
               size="2vh"
             />
           </div>

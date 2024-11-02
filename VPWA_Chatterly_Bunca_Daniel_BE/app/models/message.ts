@@ -18,7 +18,7 @@ export default class Message extends BaseModel {
   declare chatRoomId: number
 
   @belongsTo(() => User, {
-    foreignKey: 'userId',
+    foreignKey: 'senderId',
   })
   declare sender: BelongsTo<typeof User>
 

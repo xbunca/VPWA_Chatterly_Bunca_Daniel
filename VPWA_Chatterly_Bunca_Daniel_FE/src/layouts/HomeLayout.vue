@@ -9,11 +9,12 @@ import { ChatRoom, UserState } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
 import ChanelUserListItem from 'components/ChanelUserListItem.vue';
 import {
+  authenticateSocket,
   createChatRoom,
   getAccountDetail,
   getChatRoomInvitations,
   getChatRooms, getSettings,
-  inviteToChatRoom, joinChatRoom, leaveChatRoom, logoutUser,
+  inviteToChatRoom, joinChatRoom, leaveChatRoom, logoutUser, sendMessage,
   updateNotifyMentionsOnly
 } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
@@ -30,6 +31,8 @@ if (userStore.accessToken === null) {
 }
 
 onBeforeMount(async () => {
+  await authenticateSocket()
+
   try {
     const settings = await getSettings()
     settingsStore.userStates = settings.userStates
@@ -218,17 +221,8 @@ const onSend = async () => {
         break
     }
   } else {
-    if (chatsStore.selectedChat != null) {
-      chatsStore.selectedChat?.messages.push({
-        id: 1,
-        content: message,
-        sender: {
-          name: userStore.user.name,
-          surname: userStore.user.surname,
-          nickname: userStore.user.nickname,
-          stateId: userStore.user.stateId,
-        },
-      });
+    if (chatsStore.selectedChat !== null) {
+      await sendMessage(chatsStore.selectedChat!.id, message)
     }
   }
 
