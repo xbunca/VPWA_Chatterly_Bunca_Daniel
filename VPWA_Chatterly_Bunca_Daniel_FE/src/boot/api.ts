@@ -274,13 +274,13 @@ export async function getChatRooms(): Promise<ChatRoom[]> {
   }
 }
 
+interface ChatRoomInvitationListItemResponse {
+  id: number;
+  name: string;
+  private: boolean;
+  from: string;
+}
 export async function getChatRoomInvitations(): Promise<ChatRoomInvitation[]> {
-  interface ChatRoomInvitationListItemResponse {
-    id: number;
-    name: string;
-    private: boolean;
-    from: string;
-  }
 
   try {
     const data = await fetchApi('chatRoom/invite', true, {
@@ -457,6 +457,16 @@ socket.on('newMessage', async (data) => {
       nickname: message.message.sender.nickname,
       stateId: message.message.sender.stateId,
     },
+  })
+})
+
+socket.on('chatRoomInvitation', (data) => {
+  const invitation: ChatRoomInvitationListItemResponse = JSON.parse(JSON.stringify(data))
+  chatStore.invitations.push({
+    id: invitation.id,
+    name: invitation.name,
+    private: invitation.private,
+    inviteFrom: invitation.from,
   })
 })
 
