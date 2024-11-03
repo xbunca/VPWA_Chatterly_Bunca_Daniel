@@ -107,6 +107,33 @@ export default class ChatRoomService {
       })
       await membership.load('chatRoom')
 
+      await membership.chatRoom.load('owner')
+      Ws.io?.to(membership.chatRoom.owner.nickname).emit('userJoinedChat', {
+        chatRoomId: membership.chatRoomId,
+        user: {
+          name: user.name,
+          surname: user.surname,
+          nickname: user.nickname,
+          stateId: user.stateId,
+        },
+      })
+
+      await membership.chatRoom.load('chatRoomMemberships')
+      for (const chatRoomMembership of membership.chatRoom.chatRoomMemberships) {
+        if (chatRoomMembership.userId !== user.id) {
+          await chatRoomMembership.load('user')
+          Ws.io?.to(chatRoomMembership.user.nickname).emit('userJoinedChat', {
+            chatRoomId: membership.chatRoomId,
+            user: {
+              name: user.name,
+              surname: user.surname,
+              nickname: user.nickname,
+              stateId: user.stateId,
+            },
+          })
+        }
+      }
+
       return membership.chatRoom
     }
 
@@ -156,6 +183,33 @@ export default class ChatRoomService {
       chatRoomId: chatRoom.id,
     })
 
+    await chatRoom.load('owner')
+    Ws.io?.to(chatRoom.owner.nickname).emit('userJoinedChat', {
+      chatRoomId: chatRoom.id,
+      user: {
+        name: user.name,
+        surname: user.surname,
+        nickname: user.nickname,
+        stateId: user.stateId,
+      },
+    })
+
+    await chatRoom.load('chatRoomMemberships')
+    for (const chatRoomMembership of chatRoom.chatRoomMemberships) {
+      if (chatRoomMembership.userId !== user.id) {
+        await chatRoomMembership.load('user')
+        Ws.io?.to(chatRoomMembership.user.nickname).emit('userJoinedChat', {
+          chatRoomId: chatRoom.id,
+          user: {
+            name: user.name,
+            surname: user.surname,
+            nickname: user.nickname,
+            stateId: user.stateId,
+          },
+        })
+      }
+    }
+
     return chatRoom
   }
 
@@ -169,6 +223,14 @@ export default class ChatRoomService {
     }
 
     if (chatRoom.ownerId === user.id) {
+      await chatRoom.load('chatRoomMemberships')
+      for (const chatRoomMembership of chatRoom.chatRoomMemberships) {
+        await chatRoomMembership.load('user')
+        Ws.io?.to(chatRoomMembership.user.nickname).emit('chatRoomDeleted', {
+          chatRoomId: chatRoom.id,
+        })
+      }
+
       await chatRoom.delete()
       return
     }
@@ -185,6 +247,21 @@ export default class ChatRoomService {
     }
 
     await chatRoomMembership.delete()
+
+    await chatRoom.load('owner')
+    Ws.io?.to(chatRoom.owner.nickname).emit('userLeftChat', {
+      chatRoomId: chatRoom.id,
+      nickname: user.nickname,
+    })
+
+    await chatRoom.load('chatRoomMemberships')
+    for (const chatMembership of chatRoom.chatRoomMemberships) {
+      await chatMembership.load('user')
+      Ws.io?.to(chatMembership.user.nickname).emit('userLeftChat', {
+        chatRoomId: chatRoom.id,
+        nickname: user.nickname,
+      })
+    }
   }
 
   async getChatRoom(user: User, chatRoomId: number): Promise<ChatRoom> {

@@ -470,6 +470,54 @@ socket.on('chatRoomInvitation', (data) => {
   })
 })
 
+interface UserJoinedChatRoom {
+  chatRoomId: number;
+  user: {
+    name: string;
+    surname: string;
+    nickname: string;
+    stateId: number;
+  }
+}
+socket.on('userJoinedChat', (data) => {
+  const userJoinedChatRoom: UserJoinedChatRoom = JSON.parse(JSON.stringify(data))
+  const chatRoom = chatStore.chatRooms.find(chatRoom => chatRoom.id === userJoinedChatRoom.chatRoomId)
+  if (chatRoom !== undefined) {
+    chatRoom.users.push({
+      name: userJoinedChatRoom.user.name,
+      surname: userJoinedChatRoom.user.surname,
+      nickname: userJoinedChatRoom.user.nickname,
+      stateId: userJoinedChatRoom.user.stateId,
+    })
+  }
+})
+
+interface UserLeftChatRoom {
+  chatRoomId: number;
+  nickname: string;
+}
+socket.on('userLeftChat', (data) => {
+  const userLeftChatRoom: UserLeftChatRoom = JSON.parse(JSON.stringify(data))
+  const chatRoom = chatStore.chatRooms.find(chatRoom => chatRoom.id === userLeftChatRoom.chatRoomId)
+  if (chatRoom !== undefined) {
+    const userIndex = chatRoom.users.findIndex(user => user.nickname === userLeftChatRoom.nickname)
+    if (userIndex !== -1) {
+      chatRoom.users.splice(userIndex, 1)
+    }
+  }
+})
+
+interface ChatRoomDeleted {
+  chatRoomId: number;
+}
+socket.on('chatRoomDeleted', (data) => {
+  const chatRoomDeleted: ChatRoomDeleted = JSON.parse(JSON.stringify(data))
+  const chatRoomIndex = chatStore.chatRooms.findIndex(chatRoom => chatRoom.id === chatRoomDeleted.chatRoomId)
+  if (chatRoomIndex !== -1) {
+    chatStore.chatRooms.splice(chatRoomIndex, 1)
+  }
+})
+
 export async function sendMessage(chatId: number, message: string) {
   socket.emit('newMessage', {
     accessToken: userStore.accessToken,
