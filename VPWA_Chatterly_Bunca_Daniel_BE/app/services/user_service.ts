@@ -10,6 +10,7 @@ export default class UserService {
       nickname: payload.nickname,
       emailAddress: payload.email,
       password: payload.password,
+      stateId: 1,
     })
   }
 
