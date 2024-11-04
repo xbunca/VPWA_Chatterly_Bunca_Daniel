@@ -40,3 +40,9 @@ router.get('/api/chatRoom/:chatRoomId', [ChatRoomsController, 'detail']).use([mi
 router
   .get('/api/chatRoom/:chatRoomId/message', [ChatRoomsController, 'getMessages'])
   .use([middleware.auth()])
+router
+  .post('/api/chatRoom/:chatId/kick/:nickname', [ChatRoomsController, 'kickUser'])
+  .use([middleware.auth()])
+router
+  .post('/api/chatRoom/:chatId/revoke/:nickname', [ChatRoomsController, 'revokeUser'])
+  .use([middleware.auth()])

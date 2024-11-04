@@ -82,4 +82,22 @@ export default class ChatRoomsController {
     }
     return context.response.json(messagesJson)
   }
+
+  async kickUser(context: HttpContext) {
+    const user = await context.auth.getUserOrFail()
+    const chatId: number = Number(context.request.param('chatId'))
+    const targetNickname: string = decodeURIComponent(context.request.param('nickname'))
+
+    await this.chatRoomService.kickUser(user, chatId, targetNickname)
+    return context.response.json({ message: `${targetNickname} has been kicked or voted to kick.` })
+  }
+
+  async revokeUser(context: HttpContext) {
+    const adminUser = await context.auth.getUserOrFail()
+    const chatId: number = Number(context.request.param('chatId'))
+    const targetNickname: string = decodeURIComponent(context.request.param('nickname'))
+
+    await this.chatRoomService.revokeUserFromChat(adminUser, chatId, targetNickname)
+    return context.response.json({ message: `${targetNickname} has been removed from the chat.` })
+  }
 }

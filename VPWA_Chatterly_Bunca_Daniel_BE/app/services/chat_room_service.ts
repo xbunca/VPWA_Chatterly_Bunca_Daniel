@@ -2,6 +2,8 @@ import ChatRoom from '#models/chat_room'
 import User from '#models/user'
 import ChatRoomInvitation from '#models/chat_room_invitation'
 import ChatRoomMembership from '#models/chat_room_membership'
+import ChatRoomKickVote from '#models/chat_room_kick_vote'
+import ChatRoomBan from '#models/chat_room_ban'
 import { HttpException } from '#exceptions/http_exception'
 import Ws from '#services/ws'
 import Message from '#models/message'
@@ -346,5 +348,87 @@ export default class ChatRoomService {
     }
 
     return messages.reverse()
+  }
+  async kickUser(requester: User, chatRoomId: number, targetNickname: string) {
+    const chatRoom = await ChatRoom.findOrFail(chatRoomId)
+    const targetUser = await User.findByOrFail('nickname', targetNickname)
+
+    if (chatRoom.ownerId === requester.id) {
+      await this.banUser(chatRoomId, targetUser.id)
+      return
+    }
+
+    await this.recordKickVote(chatRoomId, requester.id, targetUser.id)
+  }
+
+  async revokeUserFromChat(adminUser: User, chatRoomId: number, targetNickname: string) {
+    const chatRoom = await ChatRoom.findOrFail(chatRoomId)
+    if (chatRoom.ownerId !== adminUser.id || !chatRoom.private) {
+      throw new HttpException(403, 'Only the admin can revoke users from a private chat')
+    }
+
+    const targetUser = await User.findByOrFail('nickname', targetNickname)
+    const membership = await ChatRoomMembership.query()
+      .where('chatRoomId', chatRoomId)
+      .where('userId', targetUser.id)
+      .first()
+
+    if (!membership) {
+      throw new HttpException(404, 'User is not a member of this chat')
+    }
+
+    await membership.delete()
+
+    Ws.io?.to(targetUser.nickname).emit('userRemoved', {
+      chatRoomId: chatRoomId,
+      message: 'You have been removed from the chat by the admin.',
+    })
+
+    await chatRoom.load('chatRoomMemberships')
+    for (const member of chatRoom.chatRoomMemberships) {
+      await member.load('user')
+      Ws.io?.to(member.user.nickname).emit('userLeftChat', {
+        chatRoomId: chatRoomId,
+        nickname: targetUser.nickname,
+      })
+    }
+  }
+
+  private async banUser(chatRoomId: number, userId: number) {
+    await ChatRoomBan.create({ chatRoomId, userId })
+
+    const user = await User.findOrFail(userId)
+    Ws.io?.to(user.nickname).emit('userBanned', { chatRoomId })
+  }
+
+  private async recordKickVote(chatRoomId: number, kickerId: number, targetUserId: number) {
+    const existingVote = await ChatRoomKickVote.query()
+      .where('chatRoomId', chatRoomId)
+      .where('kickerId', kickerId)
+      .where('targetUserId', targetUserId)
+      .first()
+
+    if (existingVote) {
+      throw new HttpException(409, 'You have already voted to kick this user')
+    }
+
+    await ChatRoomKickVote.create({
+      chatRoomId,
+      kickerId,
+      targetUserId,
+    })
+
+    const votes = await ChatRoomKickVote.query()
+      .where('chatRoomId', chatRoomId)
+      .where('targetUserId', targetUserId)
+
+    if (votes.length >= 3) {
+      await ChatRoomKickVote.query()
+        .where('chatRoomId', chatRoomId)
+        .where('targetUserId', targetUserId)
+        .delete()
+
+      await this.banUser(chatRoomId, targetUserId)
+    }
   }
 }
