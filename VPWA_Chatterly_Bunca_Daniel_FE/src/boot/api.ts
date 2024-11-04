@@ -3,8 +3,12 @@ import { AppSettings, ChatRoom, ChatRoomInvitation, Message } from 'components/m
 import { io } from 'socket.io-client';
 import { useChatsStore } from 'stores/chatsStore';
 
-const apiIp = 'http://localhost:3333/api/';
-const socket = io('http://localhost:3333');
+const serverProtocol = 'http://'
+const serverIp = 'localhost'
+const serverPort = '3333'
+
+const apiIp = `${serverProtocol}${serverIp}:${serverPort}/api/`;
+const socket = io(`${serverProtocol}${serverIp}:${serverPort}`);
 
 const userStore = useUserStore()
 
