@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { useChatsStore } from 'stores/chatsStore';
-import { onBeforeUnmount, watch } from 'vue';
+import { onBeforeUnmount, watch, ref } from 'vue';
 import { getChatRoomDetails, getChatRoomMessages } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
 import { useQuasar } from 'quasar';
@@ -10,10 +10,17 @@ const router = useRouter();
 const route = useRoute();
 const chatsStore = useChatsStore();
 const settingsStore = useSettingsStore();
-const q = useQuasar()
+const q = useQuasar();
+
+const allMessagesLoaded = ref(false);
+let isLoading = false;
 
 const loadSelectedChatRoom = async (chatId: string | string[]) => {
   const id = Array.isArray(chatId) ? Number(chatId[0]) : Number(chatId);
+
+  if (chatsStore.selectedChat?.id === id) {
+    return;
+  }
 
   const chatRoom = chatsStore.chatRooms.find((chat) => chat.id === id);
 
@@ -25,30 +32,39 @@ const loadSelectedChatRoom = async (chatId: string | string[]) => {
   }
 };
 
-loadSelectedChatRoom(route.params.id);
-
 watch(
   () => route.params.id,
   (newId) => {
+    allMessagesLoaded.value = false;
     loadSelectedChatRoom(newId);
-  }
+  },
+  { immediate: true }
 );
 
-let isLoading = false
-const onLoad = (
-  index: number,
-  done: (stop?: boolean | undefined) => void
-): void => {
-
-  if (isLoading) return;
+const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void => {
+  if (isLoading || allMessagesLoaded.value) {
+    done(true);
+    return;
+  }
 
   isLoading = true;
 
   (async () => {
     try {
-      const [chatId, newMessages] = await getChatRoomMessages(chatsStore.selectedChat!.id, 20, chatsStore.selectedChat!.messages.length > 0 ? chatsStore.selectedChat!.messages[0].id : null);
+      const [chatId, newMessages] = await getChatRoomMessages(
+        chatsStore.selectedChat!.id,
+        20,
+        chatsStore.selectedChat!.messages.length > 0 ? chatsStore.selectedChat!.messages[0].id : null
+      );
+
       const chatRoom = chatsStore.chatRooms.find((chat) => chat.id === chatId);
-      chatRoom?.messages.unshift(...newMessages);
+      
+      if (newMessages.length > 0) {
+        chatRoom?.messages.unshift(...newMessages);
+      } else {
+        allMessagesLoaded.value = true;
+        done(true);
+      }
     } catch (error) {
       if (error instanceof Error) {
         q.notify({
@@ -58,14 +74,13 @@ const onLoad = (
           color: 'red-5',
           position: 'center',
           timeout: 500
-        })
+        });
       }
     }
 
-    done()
-    isLoading = false
-  })()
-
+    done();
+    isLoading = false;
+  })();
 };
 
 onBeforeUnmount(() => {
