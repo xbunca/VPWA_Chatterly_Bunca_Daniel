@@ -105,4 +105,20 @@ export default class User extends compose(BaseModel, AuthFinder) {
     }
     return chatRooms
   }
+
+  canNotify(isMine: boolean, isMentioned: boolean): boolean {
+    if (isMine) {
+      return false
+    }
+
+    if (this.stateId === 3) {
+      return false
+    }
+
+    if (this.notifyMentionsOnly && !isMentioned) {
+      return false
+    }
+
+    return true
+  }
 }

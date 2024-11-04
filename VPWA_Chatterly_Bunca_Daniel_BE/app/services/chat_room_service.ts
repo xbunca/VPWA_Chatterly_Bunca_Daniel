@@ -305,6 +305,7 @@ export default class ChatRoomService {
     const messageJson = await message.getJson(chatRoom.owner)
     Ws.io?.to(chatRoom.owner.nickname).emit('newMessage', {
       chatRoomId: chatRoom.id,
+      notify: chatRoom.owner.canNotify(messageJson.isMine, messageJson.isMentioned),
       message: messageJson,
     })
 
@@ -314,6 +315,7 @@ export default class ChatRoomService {
       const messageJson2 = await message.getJson(chatRoomMembership.user)
       Ws.io?.to(chatRoomMembership.user.nickname).emit('newMessage', {
         chatRoomId: chatRoom.id,
+        notify: chatRoomMembership.user.canNotify(messageJson2.isMine, messageJson2.isMentioned),
         message: messageJson2,
       })
     }

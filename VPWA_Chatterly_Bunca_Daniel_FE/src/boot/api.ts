@@ -441,7 +441,8 @@ interface MessageData {
 
 interface MessageReceived {
   chatRoomId: number;
-  message: MessageData
+  notify: boolean;
+  message: MessageData;
 }
 socket.on('newMessage', async (data) => {
   const message: MessageReceived = JSON.parse(JSON.stringify(data))
@@ -457,6 +458,23 @@ socket.on('newMessage', async (data) => {
       nickname: message.message.sender.nickname,
       stateId: message.message.sender.stateId,
     },
+  })
+
+  if (!message.notify) {
+    return
+  }
+
+  if (Notification.permission !== 'granted') {
+    return
+  }
+
+  if (chatRoom?.id === chatStore.selectedChat?.id && document.visibilityState === 'visible') {
+    return
+  }
+
+  new Notification(`${chatRoom?.name}: ${message.message.sender.name + message.message.sender.surname}`, {
+    body: message.message.content,
+    icon: 'src/assets/logo.png',
   })
 })
 

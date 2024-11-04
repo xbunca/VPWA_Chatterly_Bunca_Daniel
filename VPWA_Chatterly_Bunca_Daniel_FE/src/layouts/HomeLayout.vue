@@ -30,6 +30,10 @@ if (userStore.accessToken === null) {
   router.replace({ name: 'login' })
 }
 
+if (Notification.permission !== 'granted') {
+  Notification.requestPermission()
+}
+
 onBeforeMount(async () => {
   await authenticateSocket()
 
