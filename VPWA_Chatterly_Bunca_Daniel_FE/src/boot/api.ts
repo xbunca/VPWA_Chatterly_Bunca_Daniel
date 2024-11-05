@@ -448,8 +448,8 @@ interface MessageReceived {
   notify: boolean;
   message: MessageData;
 }
-socket.on('newMessage', async (data) => {
-  const message: MessageReceived = JSON.parse(JSON.stringify(data))
+socket.on('newMessage', async (data: MessageReceived) => {
+  const message = data
   const chatRoom = chatStore.chatRooms.find(chatRoom => chatRoom.id === message.chatRoomId)
   chatRoom?.messages.push({
     id: message.message.id,
@@ -482,8 +482,8 @@ socket.on('newMessage', async (data) => {
   })
 })
 
-socket.on('chatRoomInvitation', (data) => {
-  const invitation: ChatRoomInvitationListItemResponse = JSON.parse(JSON.stringify(data))
+socket.on('chatRoomInvitation', (data: ChatRoomInvitationListItemResponse) => {
+  const invitation = data
   chatStore.invitations.push({
     id: invitation.id,
     name: invitation.name,
@@ -501,8 +501,8 @@ interface UserJoinedChatRoom {
     stateId: number;
   }
 }
-socket.on('userJoinedChat', (data) => {
-  const userJoinedChatRoom: UserJoinedChatRoom = JSON.parse(JSON.stringify(data))
+socket.on('userJoinedChat', (data: UserJoinedChatRoom) => {
+  const userJoinedChatRoom = data
   const chatRoom = chatStore.chatRooms.find(chatRoom => chatRoom.id === userJoinedChatRoom.chatRoomId)
   if (chatRoom !== undefined) {
     chatRoom.users.push({
@@ -518,8 +518,8 @@ interface UserLeftChatRoom {
   chatRoomId: number;
   nickname: string;
 }
-socket.on('userLeftChat', (data) => {
-  const userLeftChatRoom: UserLeftChatRoom = JSON.parse(JSON.stringify(data))
+socket.on('userLeftChat', (data: UserLeftChatRoom) => {
+  const userLeftChatRoom = data
   const chatRoom = chatStore.chatRooms.find(chatRoom => chatRoom.id === userLeftChatRoom.chatRoomId)
   if (chatRoom !== undefined) {
     const userIndex = chatRoom.users.findIndex(user => user.nickname === userLeftChatRoom.nickname)
@@ -532,8 +532,8 @@ socket.on('userLeftChat', (data) => {
 interface ChatRoomDeleted {
   chatRoomId: number;
 }
-socket.on('chatRoomDeleted', (data) => {
-  const chatRoomDeleted: ChatRoomDeleted = JSON.parse(JSON.stringify(data))
+socket.on('chatRoomDeleted', (data: ChatRoomDeleted) => {
+  const chatRoomDeleted = data
   const chatRoomIndex = chatStore.chatRooms.findIndex(chatRoom => chatRoom.id === chatRoomDeleted.chatRoomId)
   if (chatRoomIndex !== -1) {
     chatStore.chatRooms.splice(chatRoomIndex, 1)
