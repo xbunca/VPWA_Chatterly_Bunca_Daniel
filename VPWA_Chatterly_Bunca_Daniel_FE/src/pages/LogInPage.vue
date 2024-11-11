@@ -10,6 +10,8 @@ const router = useRouter()
 const emailField = ref('')
 const passwordField = ref('')
 
+const showPassword = ref(false);
+
 const logInTapped = async () => {
 
   const email = emailField.value
@@ -94,14 +96,21 @@ function validateEmail(val: string) {
     <q-input
       id="passwordField"
       label="Password"
-      type="password"
+      :type="showPassword ? 'text' : 'password'"
       placeholder=""
       v-model="passwordField"
       outlined
       dense
       :style="{ marginBottom: '3vh' }"
-    />
-
+    > 
+      <template v-slot:append>
+        <q-icon
+          :name="showPassword ? 'visibility' : 'visibility_off'"
+          class="cursor-pointer"
+          @click="showPassword = !showPassword"
+        />
+      </template>
+     </q-input>
     <q-btn
       id="logInButton"
       label="Log In"

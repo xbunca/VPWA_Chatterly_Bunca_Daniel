@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useQuasar } from 'quasar'
-import { useRouter } from 'vue-router'
+import { ref } from 'vue';
+import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
 import { register } from 'boot/api';
 
-const q = useQuasar()
-const router = useRouter()
+const q = useQuasar();
+const router = useRouter();
 
-const nameField = ref('')
-const surnameField = ref('')
-const nicknameField = ref('')
-const emailField = ref('')
-const passwordField = ref('')
+const nameField = ref('');
+const surnameField = ref('');
+const nicknameField = ref('');
+const emailField = ref('');
+const passwordField = ref('');
+const showPassword = ref(false);
 
 const createAccountTapped = async () => {
 
@@ -171,13 +172,21 @@ function validateEmail(val: string) {
     <q-input
       id="passwordField"
       label="Password"
-      type="password"
+      :type="showPassword ? 'text' : 'password'"
       placeholder=""
       v-model="passwordField"
       outlined
       dense
       :style="{ marginBottom: '3vh' }"
-    />
+    >
+      <template v-slot:append>
+        <q-icon
+          :name="showPassword ? 'visibility' : 'visibility_off'"
+          class="cursor-pointer"
+          @click="showPassword = !showPassword"
+        />
+      </template>
+    </q-input>
 
     <q-btn
       id="createAccountButton"

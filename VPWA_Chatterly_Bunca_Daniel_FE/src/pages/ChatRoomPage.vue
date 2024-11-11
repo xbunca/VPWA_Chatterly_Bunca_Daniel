@@ -156,7 +156,7 @@ onBeforeUnmount(() => {
                 '+' +
                 message.sender.surname[0]
               "
-              :name="message.sender.name + ' ' + message.sender.surname"
+              :name="'@' + message.sender.nickname"
               :text="[message.content]"
               :bg-color="message.isMentioned ? 'yellow-6' : ''"
               :sent="message.isMine"
