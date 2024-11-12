@@ -96,12 +96,36 @@ export default class User extends compose(BaseModel, AuthFinder) {
     await this.load('ownedChatRooms')
     await this.load('chatRoomMemberships')
     const chatRooms = []
+    const inactiveThreshold = DateTime.now().minus({ days: 30 })
+
     for (const ownedChatRoom of this.ownedChatRooms) {
+      await ownedChatRoom.load('messages', (query) => {
+        query.orderBy('created_at', 'desc').limit(1)
+      })
+
+      if (
+        ownedChatRoom.messages.length > 0 &&
+        ownedChatRoom.messages[0].createdAt < inactiveThreshold
+      ) {
+        await ownedChatRoom.delete()
+        continue
+      }
       chatRooms.push(await ownedChatRoom.getJson(this))
     }
     for (const chatRoomMembership of this.chatRoomMemberships) {
       await chatRoomMembership.load('chatRoom')
-      chatRooms.push(await chatRoomMembership.chatRoom.getJson(this))
+
+      const chatRoom = chatRoomMembership.chatRoom
+
+      await chatRoom.load('messages', (query) => {
+        query.orderBy('created_at', 'desc').limit(1)
+      })
+
+      if (chatRoom.messages.length > 0 && chatRoom.messages[0].createdAt < inactiveThreshold) {
+        await chatRoom.delete()
+        continue
+      }
+      chatRooms.push(await chatRoom.getJson(this))
     }
     return chatRooms
   }
