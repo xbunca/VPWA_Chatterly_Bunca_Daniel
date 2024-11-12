@@ -104,8 +104,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
       })
 
       if (
-        ownedChatRoom.messages.length > 0 &&
-        ownedChatRoom.messages[0].createdAt < inactiveThreshold
+        (ownedChatRoom.messages.length === 0 && ownedChatRoom.createdAt < inactiveThreshold) ||
+        (ownedChatRoom.messages.length > 0 &&
+          ownedChatRoom.messages[0].createdAt < inactiveThreshold)
       ) {
         await ownedChatRoom.delete()
         continue
@@ -121,7 +122,10 @@ export default class User extends compose(BaseModel, AuthFinder) {
         query.orderBy('created_at', 'desc').limit(1)
       })
 
-      if (chatRoom.messages.length > 0 && chatRoom.messages[0].createdAt < inactiveThreshold) {
+      if (
+        (chatRoom.messages.length === 0 && chatRoom.createdAt < inactiveThreshold) ||
+        (chatRoom.messages.length > 0 && chatRoom.messages[0].createdAt < inactiveThreshold)
+      ) {
         await chatRoom.delete()
         continue
       }
