@@ -18,10 +18,6 @@ let isLoading = false;
 const loadSelectedChatRoom = async (chatId: string | string[]) => {
   const id = Array.isArray(chatId) ? Number(chatId[0]) : Number(chatId);
 
-  if (chatsStore.selectedChat?.id === id) {
-    return;
-  }
-
   const chatRoom = chatsStore.chatRooms.find((chat) => chat.id === id);
 
   if (chatRoom != undefined) {
@@ -58,7 +54,7 @@ const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void
       );
 
       const chatRoom = chatsStore.chatRooms.find((chat) => chat.id === chatId);
-      
+
       if (newMessages.length > 0) {
         chatRoom?.messages.unshift(...newMessages);
       } else {

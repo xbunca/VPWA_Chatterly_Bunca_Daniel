@@ -436,6 +436,13 @@ export default class ChatRoomService {
       .where('chatRoomId', chatRoomId)
       .where('userId', userId)
       .delete()
+
+    const user = await User.find(userId)
+    if (user !== null) {
+      Ws.io?.to(user.nickname).emit('chatRoomDeleted', {
+        chatRoomId: chatRoomId,
+      })
+    }
   }
 
   private async recordKickVote(chatRoomId: number, kickerId: number, targetUserId: number) {
