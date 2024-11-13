@@ -5,20 +5,20 @@ import StatusListItem from 'components/StatusListItem.vue';
 import ChatRoomInvitationListItem from 'components/ChatRoomInvitationListItem.vue';
 import ChatRoomListItem from 'components/ChatRoomListItem.vue';
 import { useUserStore } from 'stores/userStore';
-import { ChatRoom, UserState } from 'components/models';
+import { UserState } from 'components/models';
 import { useChatsStore } from 'stores/chatsStore';
 import ChanelUserListItem from 'components/ChanelUserListItem.vue';
 import {
   authenticateSocket,
-  createChatRoom,
   getAccountDetail,
   getChatRoomInvitations,
   getChatRooms, getSettings,
-  inviteToChatRoom, joinChatRoom, leaveChatRoom, logoutUser, sendMessage,
+  logoutUser, 
   updateNotifyMentionsOnly
 } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
 import { useQuasar } from 'quasar';
+import { handleCommand } from '../services/commandsService'
 
 const router = useRouter();
 const q = useQuasar()
@@ -130,129 +130,11 @@ const showChatRoomsListTapped = () => {
 
 const onSend = async () => {
   const message = messageField.value;
-
-  if (message[0] == '/') {
-    const chatIsSelected = chatsStore.selectedChat != null;
-
-    const command = message.split(' ')[0];
-
-    switch (command) {
-      case '/list':
-        if (chatIsSelected) {
-          chatsStore.chanelUserList = true;
-        }
-        break;
-      case '/join':
-        const channelName = message.split(' ')[1];
-
-        let isPrivate = null
-
-        try {
-          isPrivate = message.split(' ')[2] === 'private'
-        } catch (e) {}
-
-        let chatRoom: ChatRoom
-
-        try {
-          if (isPrivate) {
-            chatRoom = await createChatRoom(channelName, true)
-          } else {
-            chatRoom = await joinChatRoom(channelName)
-          }
-          chatsStore.chatRooms.push(chatRoom)
-          await router.push({ name: 'chat', params: { id: chatRoom.id } })
-        } catch (error) {
-          if (error instanceof Error) {
-            q.notify({
-              type: 'negative',
-              icon: 'warning',
-              message: error.message,
-              color: 'red-5',
-              position: 'center',
-              timeout: 500
-            })
-          }
-        }
-
-        break;
-      case '/invite':
-        if (
-          chatIsSelected
-        ) {
-          const userName = message.split(' ')[1];
-          try {
-            await inviteToChatRoom(chatsStore.selectedChat!.id, userName);
-          } catch (error) {
-            if (error instanceof Error) {
-              q.notify({
-                type: 'negative',
-                icon: 'warning',
-                message: error.message,
-                color: 'red-5',
-                position: 'center',
-                timeout: 500
-              })
-            }
-          }
-        }
-        break;
-      case '/quit':
-        if (
-          chatIsSelected
-        ) {
-
-          if (chatsStore.selectedChat!.isOwner) {
-            await leaveSelectedChat()
-          } else {
-            q.notify({
-              type: 'negative',
-              icon: 'warning',
-              message: 'You are not the owner',
-              color: 'red-5',
-              position: 'center',
-              timeout: 500
-            })
-          }
-
-        }
-        break;
-      case '/cancel':
-        if (
-          chatIsSelected
-        ) {
-          await leaveSelectedChat()
-        }
-        break
-    }
-  } else {
-    if (chatsStore.selectedChat !== null) {
-      await sendMessage(chatsStore.selectedChat!.id, message)
-    }
-  }
+  await handleCommand(message)
 
   messageField.value = '';
 };
 
-async function leaveSelectedChat() {
-  try {
-    await leaveChatRoom(chatsStore.selectedChat!.id)
-    const chatIndex = chatsStore.chatRooms.findIndex(chat => chat.id === chatsStore.selectedChat!.id)
-    chatsStore.chatRooms.splice(chatIndex, 1)
-    chatsStore.selectedChat = null
-    await router.push({ name: 'home' })
-  } catch (error) {
-    if (error instanceof Error) {
-      q.notify({
-        type: 'negative',
-        icon: 'warning',
-        message: error.message,
-        color: 'red-5',
-        position: 'center',
-        timeout: 500
-      })
-    }
-  }
-}
 
 const addChatTapped = () => {
   chatsStore.chatListToggle = false;
