@@ -130,7 +130,7 @@ const showChatRoomsListTapped = () => {
 
 const onSend = async () => {
   const message = messageField.value;
-  await handleCommand(message)
+  handleCommand(message)
 
   messageField.value = '';
 };
