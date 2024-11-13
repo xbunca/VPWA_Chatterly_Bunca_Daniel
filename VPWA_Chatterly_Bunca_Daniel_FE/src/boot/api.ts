@@ -420,6 +420,20 @@ export async function getChatRoomMessages(chatId: number, limit: number, lastMes
   }
 }
 
+export async function kickUser(chatId: number, nickname: string): Promise<void> {
+  await fetchApi(`chatRoom/${chatId}/kick/${nickname}`, true, { method: 'POST' });
+}
+
+export async function revokeUser(chatId: number, nickname: string): Promise<void> {
+  const response = await fetchApi(`chatRoom/${chatId}/revoke/${nickname}`, true, { method: 'POST' }) as Response;
+  console.log(response)
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'An error occurred while revoking the user');
+  }
+}
+
+
 // SOCKET
 
 const chatStore = useChatsStore()

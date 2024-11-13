@@ -44,6 +44,23 @@ export default class ChatRoomService {
       throw new HttpException(403, 'Only the room owner can invite users')
     }
 
+    const banRecord = await ChatRoomBan.query()
+      .where('chatRoomId', chatRoomId)
+      .where('userId', invitedUser.id)
+      .first()
+
+    if (banRecord) {
+      if (chatRoom.ownerId === inviter.id) {
+        await banRecord.delete()
+        Ws.io?.to(invitedUser.nickname).emit('userReinvited', {
+          chatRoomId: chatRoomId,
+          message: 'You have been re-invited by the admin.',
+        })
+      } else {
+        throw new HttpException(403, 'The user is banned and cannot be invited by a non-admin')
+      }
+    }
+
     if (invitedUser.id === chatRoom.owner.id) {
       throw new HttpException(409, 'The user is already a member')
     }
@@ -152,6 +169,15 @@ export default class ChatRoomService {
         name: chatRoomName,
         private: false,
       })
+    }
+
+    const isBanned = await ChatRoomBan.query()
+      .where('chatRoomId', chatRoom.id)
+      .where('userId', user.id)
+      .first()
+
+    if (isBanned) {
+      throw new HttpException(403, 'You are banned from this chat room and cannot rejoin.')
     }
 
     if (chatRoom.ownerId === user.id) {
@@ -353,6 +379,15 @@ export default class ChatRoomService {
     const chatRoom = await ChatRoom.findOrFail(chatRoomId)
     const targetUser = await User.findByOrFail('nickname', targetNickname)
 
+    const existingBan = await ChatRoomBan.query()
+      .where('chatRoomId', chatRoomId)
+      .where('userId', targetUser.id)
+      .first()
+
+    if (existingBan) {
+      throw new HttpException(409, 'User is already banned from this chat')
+    }
+
     if (chatRoom.ownerId === requester.id) {
       await this.banUser(chatRoomId, targetUser.id)
       return
@@ -397,8 +432,10 @@ export default class ChatRoomService {
   private async banUser(chatRoomId: number, userId: number) {
     await ChatRoomBan.create({ chatRoomId, userId })
 
-    const user = await User.findOrFail(userId)
-    Ws.io?.to(user.nickname).emit('userBanned', { chatRoomId })
+    await ChatRoomMembership.query()
+      .where('chatRoomId', chatRoomId)
+      .where('userId', userId)
+      .delete()
   }
 
   private async recordKickVote(chatRoomId: number, kickerId: number, targetUserId: number) {
