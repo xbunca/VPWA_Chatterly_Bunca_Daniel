@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onBeforeUnmount, onMounted, ref } from 'vue'
 import { useQuasar } from 'quasar'
 import { useRouter } from 'vue-router'
 import { login } from 'boot/api';
@@ -73,6 +73,21 @@ function validateEmail(val: string) {
     return 'Please enter a valid email'
   }
 }
+
+
+const handleEnterKey = (event: KeyboardEvent) => {
+  if (event.key === 'Enter') {
+    logInTapped()
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('keydown', handleEnterKey)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('keydown', handleEnterKey)
+})
 
 </script>
 
