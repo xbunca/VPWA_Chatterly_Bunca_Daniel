@@ -8,6 +8,7 @@ import { HttpException } from '#exceptions/http_exception'
 import Ws from '#services/ws'
 import Message from '#models/message'
 
+type TypingTimers = { [key: string]: NodeJS.Timeout }
 export default class ChatRoomService {
   async createChatRoom(user: User, payload: any): Promise<ChatRoom> {
     return await ChatRoom.create({
@@ -427,6 +428,79 @@ export default class ChatRoomService {
         nickname: targetUser.nickname,
       })
     }
+  }
+
+  private typingTimers: TypingTimers = {}
+
+  async broadcastTyping(chatRoomId: number, sender: User) {
+    const typingKey = `${chatRoomId}:${sender.nickname}`
+
+    if (this.typingTimers[typingKey]) {
+      clearTimeout(this.typingTimers[typingKey])
+    }
+
+    const memberships = await ChatRoomMembership.query().where('chatRoomId', chatRoomId)
+    for (const membership of memberships) {
+      if (membership.userId !== sender.id) {
+        const targetUser = await User.find(membership.userId)
+        if (targetUser) {
+          Ws.io?.to(targetUser.nickname).emit('userTyping', {
+            chatRoomId,
+            nickname: sender.nickname,
+          })
+        }
+      }
+    }
+
+    this.typingTimers[typingKey] = setTimeout(() => {
+      this.removeTypingStatus(chatRoomId, sender.nickname)
+    }, 5000)
+  }
+
+  async broadcastDraftMessage(chatRoomId: number, sender: User, content: string) {
+    const typingKey = `${chatRoomId}:${sender.nickname}`
+
+    if (this.typingTimers[typingKey]) {
+      clearTimeout(this.typingTimers[typingKey])
+    }
+
+    const memberships = await ChatRoomMembership.query().where('chatRoomId', chatRoomId)
+    for (const membership of memberships) {
+      if (membership.userId !== sender.id) {
+        const targetUser = await User.find(membership.userId)
+        if (targetUser) {
+          Ws.io?.to(targetUser.nickname).emit('userDraft', {
+            chatRoomId,
+            nickname: sender.nickname,
+            content,
+          })
+        }
+      }
+    }
+
+    this.typingTimers[typingKey] = setTimeout(() => {
+      this.removeTypingStatus(chatRoomId, sender.nickname)
+    }, 5000)
+  }
+
+  async removeTypingStatus(chatRoomId: number, nickname: string) {
+    const memberships = await ChatRoomMembership.query().where('chatRoomId', chatRoomId)
+    for (const membership of memberships) {
+      const targetUser = await User.find(membership.userId)
+      if (targetUser) {
+        Ws.io?.to(targetUser.nickname).emit('userStoppedTyping', {
+          chatRoomId,
+          nickname,
+        })
+      }
+    }
+
+    const typingKey = `${chatRoomId}:${nickname}`
+    delete this.typingTimers[typingKey]
+  }
+
+  async handleUserSentMessage(chatRoomId: number, sender: User) {
+    await this.removeTypingStatus(chatRoomId, sender.nickname)
   }
 
   private async banUser(chatRoomId: number, userId: number) {

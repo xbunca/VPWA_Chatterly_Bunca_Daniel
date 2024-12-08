@@ -444,6 +444,20 @@ export async function authenticateSocket() {
   })
 }
 
+export function sendTyping(chatId: number) {
+  socket.emit('typing', { 
+    accessToken: userStore.accessToken,
+    chatRoomId: chatId 
+  });
+}
+
+export function sendDraftMessage(chatId: number, content: string) {
+  socket.emit('draftMessage', {
+    accessToken: userStore.accessToken,
+    chatRoomId: chatId, content 
+  });
+}
+
 interface MessageData {
   id: number;
   content: string;
@@ -553,6 +567,36 @@ socket.on('chatRoomDeleted', (data: ChatRoomDeleted) => {
     chatStore.chatRooms.splice(chatRoomIndex, 1)
   }
 })
+
+socket.on('userTyping', (data: { chatRoomId: number; nickname: string }) => {
+  const chatRoom = chatStore.chatRooms.find((chat) => chat.id === data.chatRoomId);
+  if (chatRoom) {
+    chatRoom.typingUser = data.nickname;
+  }
+});
+
+socket.on('userStoppedTyping', (data) => {
+  const chatRoom = chatStore.chatRooms.find(chat => chat.id === data.chatRoomId);
+  if (chatRoom) {
+    if (chatRoom.typingUser === data.nickname) {
+      chatRoom.typingUser = undefined;
+    }
+    if (chatRoom.drafts && chatRoom.drafts[data.nickname]) {
+      delete chatRoom.drafts[data.nickname];
+    }
+  }
+});
+
+socket.on('userDraft', (data: { chatRoomId: number; nickname: string; content: string }) => {
+  const chatRoom = chatStore.chatRooms.find((chat) => chat.id === data.chatRoomId);
+  if (chatRoom) {
+    if (!chatRoom.drafts) {
+      chatRoom.drafts = {};
+    }
+    chatRoom.drafts[data.nickname] = data.content;
+  }
+});
+
 
 export async function sendMessage(chatId: number, message: string) {
   socket.emit('newMessage', {
