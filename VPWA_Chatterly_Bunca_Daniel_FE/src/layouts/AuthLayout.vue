@@ -71,4 +71,18 @@ if (userStore.accessToken !== null) {
   font-size: 5vh;
   margin-bottom: 0;
 }
+
+@media (max-width: 1030px) {
+  .left {
+    display: none;
+  }
+
+  .right {
+    width: 100%;
+  }
+
+  .divider {
+    display: none;
+  }
+}
 </style>
