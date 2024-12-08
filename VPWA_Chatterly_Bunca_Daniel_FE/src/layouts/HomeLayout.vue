@@ -14,6 +14,8 @@ import {
   getChatRoomInvitations,
   getChatRooms, getSettings,
   logoutUser, 
+  sendDraftMessage, 
+  sendTyping, 
   updateNotifyMentionsOnly
 } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
@@ -21,10 +23,12 @@ import { useQuasar } from 'quasar';
 import { handleCommand } from '../services/commandsService'
 
 const router = useRouter();
-const q = useQuasar()
+const q = useQuasar();
 
 const userStore = useUserStore();
-const settingsStore = useSettingsStore()
+const settingsStore = useSettingsStore();
+const viewedDraftUser = ref('');
+const viewedDraft = ref('');
 
 if (userStore.accessToken === null) {
   router.replace({ name: 'login' })
@@ -135,10 +139,36 @@ const onSend = async () => {
   messageField.value = '';
 };
 
-
 const addChatTapped = () => {
   chatsStore.chatListToggle = false;
   router.push({ name: 'joinChat' });
+};
+
+const handleTyping = (value: string | number | null) => {
+  const typedValue = typeof value === 'string' ? value : '';
+  messageField.value = typedValue;
+
+  if (chatsStore.selectedChat) {
+    sendTyping(chatsStore.selectedChat.id);
+    sendDraftMessage(chatsStore.selectedChat.id, messageField.value);
+  }
+};
+
+const viewDraft = (nickname: string) => {
+
+  if (viewedDraftUser.value === nickname) {
+    viewedDraft.value = '';
+    viewedDraftUser.value = '';
+    return;
+  }
+
+  if (chatsStore.selectedChat?.drafts && chatsStore.selectedChat.drafts[nickname]) {
+    viewedDraft.value = chatsStore.selectedChat.drafts[nickname];
+    viewedDraftUser.value = nickname;
+  } else {
+    viewedDraft.value = 'No draft available';
+    viewedDraftUser.value = nickname;
+  }
 };
 </script>
 
@@ -275,10 +305,19 @@ const addChatTapped = () => {
       <div id="messages-container">
         <router-view />
       </div>
+      <div v-if="chatsStore.selectedChat?.typingUser && viewedDraft" class="draft-display">
+        Draft by {{ viewedDraftUser }}: {{ viewedDraft }}
+      </div>
+      <div v-if="chatsStore.selectedChat?.typingUser" class="typing-indicator">
+        <span @click="viewDraft(chatsStore.selectedChat.typingUser)">
+          {{ chatsStore.selectedChat.typingUser }} is typing...
+        </span>     
+      </div>
       <div id="filed-container">
         <q-input
           id="messagesField"
-          v-model="messageField"
+          :model-value="messageField"
+          @update:model-value="handleTyping"
           placeholder="Message/Command"
           @keydown.enter="onSend"
           outlined
@@ -454,6 +493,23 @@ const addChatTapped = () => {
   top: 45%;
   display: none;
   opacity: 70%;
+}
+
+.typing-indicator {
+  font-size: 0.9em;
+  color: #888;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.draft-display {
+  font-size: 0.9em;
+  color: #555;
+  background-color: #f9f9f9;
+  padding: 5px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
 @media (max-width: 1030px) {

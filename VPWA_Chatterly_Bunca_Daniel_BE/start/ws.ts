@@ -19,6 +19,28 @@ app.ready(() => {
       socket.join(user.nickname)
     })
 
+    socket.on('typing', async (data) => {
+      const user = await authenticate(data.accessToken)
+      if (!user) return
+
+      try {
+        await chatRomService.broadcastTyping(data.chatRoomId, user)
+      } catch (error) {
+        console.error('Error broadcasting typing event:', error)
+      }
+    })
+
+    socket.on('draftMessage', async (data) => {
+      const user = await authenticate(data.accessToken)
+      if (!user) return
+
+      try {
+        await chatRomService.broadcastDraftMessage(data.chatRoomId, user, data.content)
+      } catch (error) {
+        console.error('Error broadcasting draft message event:', error)
+      }
+    })
+
     socket.on('newMessage', async (data) => {
       const user = await authenticate(data.accessToken)
       if (user === null) {
@@ -36,6 +58,7 @@ app.ready(() => {
       }
 
       await chatRomService.createMessage(user, data.content, data.chatRoomId, chatRoom)
+      await chatRomService.handleUserSentMessage(data.chatRoomId, user)
     })
   })
 })

@@ -46,4 +46,6 @@ export interface ChatRoom {
   inviteFrom: string | null;
   users: Sender[];
   messages: Message[];
+  typingUser?: string;
+  drafts?: Record<string, string>;
 }
