@@ -341,6 +341,9 @@ export default class ChatRoomService {
     await chatRoom.load('chatRoomMemberships')
     for (const chatRoomMembership of chatRoom.chatRoomMemberships) {
       await chatRoomMembership.load('user')
+      if (chatRoomMembership.user.stateId === 1) {
+        continue
+      }
       const messageJson2 = await message.getJson(chatRoomMembership.user)
       Ws.io?.to(chatRoomMembership.user.nickname).emit('newMessage', {
         chatRoomId: chatRoom.id,

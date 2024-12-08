@@ -139,7 +139,7 @@ export default class User extends compose(BaseModel, AuthFinder) {
       return false
     }
 
-    if (this.stateId === 3) {
+    if (this.stateId === 1 || this.stateId === 3) {
       return false
     }
 

@@ -5,15 +5,52 @@ import { onBeforeUnmount, watch, ref } from 'vue';
 import { getChatRoomDetails, getChatRoomMessages } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
 import { useQuasar } from 'quasar';
+import { useUserStore } from 'src/stores/userStore';
 
 const router = useRouter();
 const route = useRoute();
 const chatsStore = useChatsStore();
 const settingsStore = useSettingsStore();
+const userStore = useUserStore();
 const q = useQuasar();
 
 const allMessagesLoaded = ref(false);
 let isLoading = false;
+
+const refreshCurrentChat = async () => {
+  if (!chatsStore.selectedChat) return;
+
+  try {
+    const chatId = chatsStore.selectedChat.id;
+    const chatDetails = await getChatRoomDetails(chatId);
+    chatsStore.selectedChat.users = chatDetails.users;
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_, messages] = await getChatRoomMessages(chatId, 50, null);
+    chatsStore.selectedChat.messages = messages;
+
+  } catch (error) {
+    if (error instanceof Error) {
+      q.notify({
+        type: 'negative',
+        icon: 'warning',
+        message: error.message,
+        color: 'red-5',
+        position: 'center',
+        timeout: 500,
+      });
+    }
+  }
+};
+
+watch(
+  () => userStore.user.stateId,
+  async (newStateId, oldStateId) => {
+    if (oldStateId === 1 && newStateId !== 1) {
+      await refreshCurrentChat();
+    }
+  }
+);
 
 const loadSelectedChatRoom = async (chatId: string | string[]) => {
   const id = Array.isArray(chatId) ? Number(chatId[0]) : Number(chatId);

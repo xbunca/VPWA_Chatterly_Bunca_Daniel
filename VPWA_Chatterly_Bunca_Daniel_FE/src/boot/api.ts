@@ -3,8 +3,8 @@ import { AppSettings, ChatRoom, ChatRoomInvitation, Message } from 'components/m
 import { io } from 'socket.io-client';
 import { useChatsStore } from 'stores/chatsStore';
 
-const serverProtocol = 'http://'
-const serverIp = 'localhost'
+const serverProtocol = 'https://'
+const serverIp = '192.168.100.116'
 const serverPort = '3333'
 
 const apiIp = `${serverProtocol}${serverIp}:${serverPort}/api/`;
@@ -612,15 +612,37 @@ interface UserStateChanged {
   stateId: number;
 }
 socket.on('userStateChanged', (data: UserStateChanged) => {
-  const chatRoom = chatStore.chatRooms.find(chatRoom => chatRoom.id === data.chatRoomId)
+  const chatRoom = chatStore.chatRooms.find(chatRoom => chatRoom.id === data.chatRoomId);
   if (chatRoom !== undefined) {
-    const user = chatRoom.users.find(user => user.nickname === data.userNickname)
+    const user = chatRoom.users.find(user => user.nickname === data.userNickname);
     if (user !== undefined) {
-      user.stateId = data.stateId
+      user.stateId = data.stateId;
     }
-    const chatMessages = chatRoom.messages.filter(message => message.sender.nickname === data.userNickname)
-    for (const message of chatMessages) {
-      message.sender.stateId = data.stateId
+
+    if (data.userNickname === userStore.user.nickname) {
+      userStore.user.stateId = data.stateId;
+
+      if (data.stateId !== 1) {
+        getChatRooms().then(chatRooms => {
+          chatStore.chatRooms = chatRooms;
+
+          chatRooms.forEach(chatRoom => {
+            getChatRoomMessages(chatRoom.id, 50, null)
+              .then(([chatRoomId, messages]) => {
+                const currentRoom = chatStore.chatRooms.find(chat => chat.id === chatRoomId);
+                if (currentRoom) {
+                  currentRoom.messages = messages;
+                }
+              })
+              .catch(error => {
+                console.error(`Error loading messages for chatRoom ${chatRoom.id}:`, error);
+              });
+          });
+        }).catch(error => {
+          console.error('Error refreshing chat rooms:', error);
+        });
+      }
     }
   }
-})
+});
+
