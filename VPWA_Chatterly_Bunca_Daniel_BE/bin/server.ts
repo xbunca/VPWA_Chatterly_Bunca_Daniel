@@ -10,7 +10,6 @@
 */
 
 import 'reflect-metadata'
-import { join } from 'node:path'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
 import { readFileSync } from 'node:fs'
 import { createServer as createHttpServer } from 'node:http'
@@ -41,7 +40,9 @@ if (!sslKeyPath || !sslCertPath) {
   console.error('SSL key or certificate path is missing in .env')
 }
 
+// @ts-ignore
 const privateKey = readFileSync(sslKeyPath, 'utf8')
+// @ts-ignore
 const certificate = readFileSync(sslCertPath, 'utf8')
 const credentials = { key: privateKey, cert: certificate }
 
