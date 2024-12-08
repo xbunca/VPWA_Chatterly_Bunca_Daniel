@@ -454,7 +454,7 @@ export default class ChatRoomService {
 
     this.typingTimers[typingKey] = setTimeout(() => {
       this.removeTypingStatus(chatRoomId, sender.nickname)
-    }, 5000)
+    }, 2000)
   }
 
   async broadcastDraftMessage(chatRoomId: number, sender: User, content: string) {
@@ -480,7 +480,7 @@ export default class ChatRoomService {
 
     this.typingTimers[typingKey] = setTimeout(() => {
       this.removeTypingStatus(chatRoomId, sender.nickname)
-    }, 5000)
+    }, 2000)
   }
 
   async removeTypingStatus(chatRoomId: number, nickname: string) {
