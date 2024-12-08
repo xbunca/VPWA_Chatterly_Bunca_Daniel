@@ -561,3 +561,22 @@ export async function sendMessage(chatId: number, message: string) {
     content: message,
   })
 }
+
+interface UserStateChanged {
+  userNickname: string;
+  chatRoomId: number;
+  stateId: number;
+}
+socket.on('userStateChanged', (data: UserStateChanged) => {
+  const chatRoom = chatStore.chatRooms.find(chatRoom => chatRoom.id === data.chatRoomId)
+  if (chatRoom !== undefined) {
+    const user = chatRoom.users.find(user => user.nickname === data.userNickname)
+    if (user !== undefined) {
+      user.stateId = data.stateId
+    }
+    const chatMessages = chatRoom.messages.filter(message => message.sender.nickname === data.userNickname)
+    for (const message of chatMessages) {
+      message.sender.stateId = data.stateId
+    }
+  }
+})
