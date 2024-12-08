@@ -10,7 +10,12 @@
 */
 
 import 'reflect-metadata'
+import { join } from 'node:path'
 import { Ignitor, prettyPrintError } from '@adonisjs/core'
+import { readFileSync } from 'node:fs'
+import { createServer as createHttpServer } from 'node:http'
+import { createServer as createHttpsServer } from 'node:https'
+import Env from '#start/env'
 
 /**
  * URL to the application root. AdonisJS need it to resolve
@@ -29,6 +34,17 @@ const IMPORTER = (filePath: string) => {
   return import(filePath)
 }
 
+const sslKeyPath = Env.get('SSL_KEY_PATH')
+const sslCertPath = Env.get('SSL_CERT_PATH')
+
+if (!sslKeyPath || !sslCertPath) {
+  console.error('SSL key or certificate path is missing in .env')
+}
+
+const privateKey = readFileSync(sslKeyPath, 'utf8')
+const certificate = readFileSync(sslCertPath, 'utf8')
+const credentials = { key: privateKey, cert: certificate }
+
 new Ignitor(APP_ROOT, { importer: IMPORTER })
   .tap((app) => {
     app.booting(async () => {
@@ -38,7 +54,13 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
     app.listenIf(app.managedByPm2, 'SIGINT', () => app.terminate())
   })
   .httpServer()
-  .start()
+  .start((handle) => {
+    if (Env.get('SSL_KEY') && Env.get('SSL_CERT')) {
+      return createHttpsServer(credentials, handle)
+    } else {
+      return createHttpServer(handle)
+    }
+  })
   .catch((error) => {
     process.exitCode = 1
     prettyPrintError(error)
