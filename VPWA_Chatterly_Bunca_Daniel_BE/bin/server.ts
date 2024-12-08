@@ -55,9 +55,11 @@ new Ignitor(APP_ROOT, { importer: IMPORTER })
   })
   .httpServer()
   .start((handle) => {
-    if (Env.get('SSL_KEY') && Env.get('SSL_CERT')) {
+    if (Env.get('USE_HTTPS') === 'true') {
+      console.log('Starting HTTPS server...')
       return createHttpsServer(credentials, handle)
     } else {
+      console.log('Starting HTTP server...')
       return createHttpServer(handle)
     }
   })
