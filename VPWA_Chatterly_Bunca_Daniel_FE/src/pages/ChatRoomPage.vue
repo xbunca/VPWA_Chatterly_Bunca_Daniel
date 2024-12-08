@@ -119,10 +119,10 @@ const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void
 const scrollContainer = ref<HTMLDivElement | null>(null);
 watch(
   () => chatsStore.selectedChat?.messages[chatsStore.selectedChat.messages.length - 1],
-  () => {
+  (newMessage) => {
     (async () => {
       await nextTick()
-      if (scrollContainer.value) {
+      if (scrollContainer.value && newMessage?.isMine ) {
         scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
       }
     })()

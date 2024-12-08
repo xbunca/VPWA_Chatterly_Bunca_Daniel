@@ -3,8 +3,8 @@ import { AppSettings, ChatRoom, ChatRoomInvitation, Message } from 'components/m
 import { io } from 'socket.io-client';
 import { useChatsStore } from 'stores/chatsStore';
 
-const serverProtocol = 'http://'
-const serverIp = 'localhost'
+const serverProtocol = 'https://'
+const serverIp = '192.168.100.116'
 const serverPort = '3333'
 
 const apiIp = `${serverProtocol}${serverIp}:${serverPort}/api/`;
