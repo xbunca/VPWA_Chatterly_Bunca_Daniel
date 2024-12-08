@@ -3,8 +3,8 @@ import { AppSettings, ChatRoom, ChatRoomInvitation, Message } from 'components/m
 import { io } from 'socket.io-client';
 import { useChatsStore } from 'stores/chatsStore';
 
-const serverProtocol = 'https://'
-const serverIp = '192.168.100.116'
+const serverProtocol = 'http://'
+const serverIp = 'localhost'
 const serverPort = '3333'
 
 const apiIp = `${serverProtocol}${serverIp}:${serverPort}/api/`;
@@ -445,16 +445,16 @@ export async function authenticateSocket() {
 }
 
 export function sendTyping(chatId: number) {
-  socket.emit('typing', { 
+  socket.emit('typing', {
     accessToken: userStore.accessToken,
-    chatRoomId: chatId 
+    chatRoomId: chatId
   });
 }
 
 export function sendDraftMessage(chatId: number, content: string) {
   socket.emit('draftMessage', {
     accessToken: userStore.accessToken,
-    chatRoomId: chatId, content 
+    chatRoomId: chatId, content
   });
 }
 

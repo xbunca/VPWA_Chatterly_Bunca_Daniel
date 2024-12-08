@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router';
 import { useChatsStore } from 'stores/chatsStore';
-import { onBeforeUnmount, watch, ref } from 'vue';
+import { onBeforeUnmount, watch, ref, nextTick } from 'vue';
 import { getChatRoomDetails, getChatRoomMessages } from 'boot/api';
 import { useSettingsStore } from 'stores/settingsStore';
 import { useQuasar } from 'quasar';
@@ -116,6 +116,19 @@ const onLoad = (index: number, done: (stop?: boolean | undefined) => void): void
   })();
 };
 
+const scrollContainer = ref<HTMLDivElement | null>(null);
+watch(
+  () => chatsStore.selectedChat?.messages[chatsStore.selectedChat.messages.length - 1],
+  () => {
+    (async () => {
+      await nextTick()
+      if (scrollContainer.value) {
+        scrollContainer.value.scrollTop = scrollContainer.value.scrollHeight;
+      }
+    })()
+  }
+)
+
 onBeforeUnmount(() => {
   chatsStore.selectedChat = null;
 });
@@ -168,7 +181,7 @@ onBeforeUnmount(() => {
       />
     </div>
 
-    <div id="scroll-container" class="scroll q-pa-md">
+    <div id="scroll-container" ref="scrollContainer" class="scroll q-pa-md">
       <q-infinite-scroll @load="onLoad" reverse>
         <template v-slot:loading>
           <div class="row justify-center q-my-md">
